@@ -5,3 +5,5 @@ requests
 finnhub-python
 gunicorn
 psycopg2
+dateutil
+pytz
