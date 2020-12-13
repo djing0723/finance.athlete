@@ -9,7 +9,7 @@ from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
 from werkzeug.security import check_password_hash, generate_password_hash
 import json
-from newsapi import NewsApiClient
+#from newsapi import NewsApiClient
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 import pytz
