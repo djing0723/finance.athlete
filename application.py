@@ -44,7 +44,7 @@ Session(app)
 
 # Configure CS50 Library to use SQLite database
 #db = SQL("sqlite:///finance.db")
-db = SQL("postgres://jfbpknqvvinlsw:a0b3987fc025df9455b8ce55e807c2f572bec567efae497c3bb03525f3017c7b@ec2-54-146-118-15.compute-1.amazonaws.com:5432/d4kvpncu0qvihd")
+db = SQL(os.environ.get("postgres://jfbpknqvvinlsw:a0b3987fc025df9455b8ce55e807c2f572bec567efae497c3bb03525f3017c7b@ec2-54-146-118-15.compute-1.amazonaws.com:5432/d4kvpncu0qvihd") or "sqlite:///finance.db")
 #db = sqlite3.connect('finance.db', check_same_thread = False)
 
 # Make sure API key is set
@@ -434,7 +434,7 @@ def addstockwatchlist():
     #get the user ID and current watchlist
     user_id = session["user_id"]
     watchlist_id = request.form.get("watchlist_id")
-    stock = request.form.get("stock")
+    stock = request.form.get("stock").upper().strip()
     #make sure the user is selecting the correct ticker
     if (lookup(stock) is None):
         return apology("Invalid Ticker", 403)
@@ -492,10 +492,10 @@ def delstockwatchlist():
     #get the user id and watchlist to delete
     user_id = session["user_id"]
     watchlist_id = request.form.get("watchlist_id")
-    stock = request.form.get("stock")
+    stock = request.form.get("stock").upper().strip()
     if (lookup(stock) is None):
         return apology("Invalid Ticker", 403)
-    db.execute("DELETE FROM watchlist_positions WHERE stock = :stock AND watchlist_id = :watchlist_id", stock = stock, watchlist_id = watchlist_id)
+    db.execute("DELETE FROM watchlist_positions WHERE UPPER(stock) = :stock AND watchlist_id = :watchlist_id", stock = stock, watchlist_id = watchlist_id)
     watchlists =  db.execute("SELECT * FROM watchlist_name WHERE user_id = :user_id", user_id = user_id)
     watchlist =  db.execute("SELECT watchlist_name.watchlist_id, watchlist_name, stock FROM watchlist_name LEFT JOIN watchlist_positions ON watchlist_name.watchlist_id = watchlist_positions.watchlist_id WHERE watchlist_name.watchlist_id = :watchlist_id AND user_id = :user_id", watchlist_id = watchlist_id, user_id = user_id)
     """
@@ -729,7 +729,7 @@ def stock():
     #else, we can scrape information about the stock
     if request.method == "POST":
         method = "POST"
-        ticker = request.form.get("stock-index")
+        ticker = request.form.get("stock-index").upper().strip()
 
         #tradingview chart URL
         url_passin = "https://www.tradingview.com/symbols/" + ticker + "/"
@@ -815,4 +815,8 @@ def errorhandler(e):
 # Listen for errors
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
+
+if __name__ == "__main__":
+ port = int(os.environ.get("PORT", 8080))
+ app.run(host="0.0.0.0", port=port)
 
