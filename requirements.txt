@@ -2,6 +2,6 @@ cs50
 Flask
 Flask-Session
 requests
-
+finnhub
 gunicorn
 psycopg2
