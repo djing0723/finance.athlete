@@ -48,14 +48,14 @@ db = SQL(os.environ.get("postgres://jfbpknqvvinlsw:a0b3987fc025df9455b8ce55e807c
 #db = sqlite3.connect('finance.db', check_same_thread = False)
 
 # Make sure API key is set
-if not os.environ.get("API_KEY_IEX"):
+"""if not os.environ.get("API_KEY_IEX"):
     raise RuntimeError("API_KEY_IEX not set")
 if not os.environ.get("API_KEY_FINNHUB"):
-    raise RuntimeError("API_KEY_FINNHUB not set")
+    raise RuntimeError("API_KEY_FINNHUB not set")"""
 
 # Set up finnhub client
-print(os.getenv("API_KEY_FINNHUB"))
-finnhub_client = finnhub.Client(api_key=os.getenv("API_KEY_FINNHUB"))
+#print(os.getenv("API_KEY_FINNHUB"))
+finnhub_client = finnhub.Client(api_key="bv77j6f48v6qefljqrr0")
 
 @app.route("/", methods=["GET", "POST"])
 @login_required

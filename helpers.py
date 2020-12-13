@@ -12,8 +12,6 @@ import pytz
 #db = SQL("sqlite:///finance.db")
 db = SQL(os.environ.get("postgres://jfbpknqvvinlsw:a0b3987fc025df9455b8ce55e807c2f572bec567efae497c3bb03525f3017c7b@ec2-54-146-118-15.compute-1.amazonaws.com:5432/d4kvpncu0qvihd") or "sqlite:///finance.db")
 
-
-
 def timecheck(ticker):
 
     #timecheck checks to see if we've updated in that time of day because we only update three times a week
@@ -89,7 +87,7 @@ def lookup(symbol):
     """Look up quote for symbol."""
     # Contact API
     try:
-        api_key = os.environ.get("API_KEY_IEX")
+        api_key = "pk_59fbe731d8a4431396e520b9e2e2ed87"
         url = f"https://cloud-sse.iexapis.com/stable/stock/{urllib.parse.quote_plus(symbol)}/quote?token={api_key}"
         response = requests.get(url)
         response.raise_for_status()
@@ -119,7 +117,7 @@ def news_lookup(symbol):
     api_input = "&from=" + d2 + "&to=" + d1 + "&"
     # Contact API
     try:
-        api_key = os.environ.get("API_KEY_FINNHUB")
+        api_key = "bv77j6f48v6qefljqrr0"
         url = f"https://finnhub.io/api/v1/company-news?symbol={urllib.parse.quote_plus(symbol)}{api_input}token={api_key}"
         response = requests.get(url)
         response.raise_for_status()
