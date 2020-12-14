@@ -17,8 +17,9 @@ db = SQL(os.environ.get("postgres://jfbpknqvvinlsw:a0b3987fc025df9455b8ce55e807c
 def prices_update(ticker):
     #get the current date to compare to prices table
     ticker = ticker.upper().strip()
-    current_date = date.today().strftime('%Y-%m-%d')
-    current_time = datetime.now(pytz.timezone("America/New_York"))
+    current_date = datetime.now(pytz.timezone('US/Eastern')).strftime('%Y-%m-%d')
+    print(current_date)
+    current_time = datetime.now(pytz.timezone('US/Eastern'))
     current_minute = str(current_time.minute)
     if (len(current_minute) < 2):
         current_minute = str(0) + current_minute

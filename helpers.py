@@ -23,8 +23,8 @@ api_key_finnhub2 = "bv77j6f48v6qefljqrr0"
 def timecheck(ticker):
 
     #timecheck checks to see if we've updated in that time of day because we only update three times a week
-    current_date = datetime.now(pytz.timezone("America/New_York")).strftime('%Y-%m-%d')
-    current_time = datetime.now(pytz.timezone("America/New_York"))
+    current_date = datetime.now(pytz.timezone('US/Eastern')).strftime('%Y-%m-%d')
+    current_time = datetime.now(pytz.timezone('US/Eastern'))
     print(current_date)
     current_minute = str(current_time.minute)
     if (len(current_minute) < 2):
