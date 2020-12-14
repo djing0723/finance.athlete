@@ -139,7 +139,7 @@ def news_lookup(symbol):
 def company_profile(symbol):
     # Contact API
     try:
-        api_key = os.environ.get("API_KEY_FINNHUB")
+        api_key = "bv77j6f48v6qefljqrr0"
         url = f"https://finnhub.io/api/v1/stock/profile2?symbol={urllib.parse.quote_plus(symbol)}&token={api_key}"
         response = requests.get(url)
         response.raise_for_status()
