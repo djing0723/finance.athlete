@@ -43,14 +43,18 @@ def prices_update(ticker):
         else:
             industry = "misc."
         price = quote["price"]
-        change = quote["change"]
+        change = 0
+        if quote["change"] is not None:
+            change = float(quote["change"])
         db.execute("INSERT INTO prices (date, time, ticker, price, industry, change) VALUES(?,?,?,?, ?, ?)",  current_date, hour_min, ticker, price, industry, change)
 
     #else, update it through here
     else:
         quote = lookup(ticker)
         price = quote["price"]
-        change = float(quote["change"])
+        change = 0
+        if quote["change"] is not None:
+            change = float(quote["change"])        
         profile = company_profile(ticker)
         if profile is not None:
             industry = profile["industry"]
