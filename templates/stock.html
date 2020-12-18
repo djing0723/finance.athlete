@@ -230,6 +230,8 @@ function showPage() {
         {% else %}
         {% endif %}
 
+
+
         {% if comps is not none %}
         <div class="new">
           <div class = "stockheader">
@@ -251,6 +253,10 @@ function showPage() {
         </div>
        {% else %}
        {% endif %}
+
+       <form action = "/comps" method = "POST" style = "margin-top: 10px;">
+           <button type = "submit" name = "comp_ticker" value = {{ticker}} class = "stock-input-button">View Full Comps Table</button>
+       </form>
 
         {% if news is not none %}
         <div id = "news">

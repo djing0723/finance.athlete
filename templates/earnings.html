@@ -1,0 +1,103 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Positions
+{% endblock %}
+
+{% block main %}
+
+<head>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script>
+    // Load Page
+    var myVar;
+    function myFunction() {
+      myVar = setTimeout(showPage, 50); //wait for 50 seconds to then run function show page
+    }
+    function showPage() {
+      document.getElementById("loader").style.display = "none";  //get rid of the loader display, display indexDiv, the rest of the page
+      document.getElementById("indexDiv").style.display = "block";
+    }
+  </script>
+</head>
+
+<body onload="myFunction()">
+  <div id="loader"></div>
+
+  <div id="indexDiv" class="animate-bottom" style="display:none;">
+    <!-- Card -->
+    <div class="card card-info" style = "text-align: center; margin-top: 30px;">
+      <h2 style = "margin-top: 40px;">Previous Relevant Earnings</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Date</th>
+            <th>Hour</th>
+            <th>Period</th>
+            <th>EPS Estimate</th>
+            <th>EPS Actual</th>
+            <th>EPS Beat</th>
+            <th>Revenue Estimate</th>
+            <th>Revenue Actual</th>
+            <th>Revenue Beat</th>
+          </tr>
+        </thead>
+      {%for prev in prev_earnings %}
+      <tr>
+        <td>
+        <form action = "/stock" method = "POST">
+          <div class = "stock-ticker">
+            <button type = "submit" name = "stock-index" value = {{prev.symbol}} class = "stock-input-button">{{prev.symbol}}</button>
+          </div>
+        </form></td>
+        <td>{{prev.date}}</td>
+        <td>{{prev.hour}}</td>
+        <td>Q{{prev.quarter}} {{prev.year}}</td>
+        <td>{{prev.epsEstimate}}</td>
+        <td>{{prev.epsActual}}</td>
+        <td>{{prev.epsBeat}}</td>
+        <td>{{prev.revenueEstimate}}</td>
+        <td>{{prev.revenueActual}}</td>
+        <td>{{prev.revenueBeat}}</td>
+      </tr>
+      {% endfor %}
+      </table>
+    </div>
+    <!-- Card End-->
+    <!-- Card -->
+    <div class="card card-info" style = "text-align: center;">
+      <h2 style = "margin-top: 40px;">Future Relevant Earnings</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Date</th>
+            <th>Hour</th>
+            <th>Period</th>
+            <th>EPS Estimate</th>
+            <th>Revenue Estimate</th>
+          </tr>
+        </thead>
+        {%for fut in future_earnings %}
+          <tr>
+          <td>
+            <form action = "/stock" method = "POST">
+              <div class = "stock-ticker">
+                <button type = "submit" name = "stock-index" value = {{fut.symbol}} class = "stock-input-button">{{fut.symbol}}</button>
+              </div>
+            </form>
+          </td>
+          <td>{{fut.date}}</td>
+          <td>{{fut.hour}}</td>
+          <td>Q{{fut.quarter}} {{fut.year}}</td>
+          <td>{{fut.epsEstimate}}</td>
+          <td>{{fut.revenueEstimate}}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+    <!-- Card End-->
+  </div>
+</body>
+{% endblock %}

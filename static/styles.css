@@ -478,3 +478,22 @@ hr {
     background-color: #333333 !important;
     color: #fff !important;
 }
+
+.compstableclass
+{
+    margin-left: auto;
+    margin-right: auto;
+    border-collapse:separate;
+    border-spacing: 5px;
+    border: 8px solid #509cab;
+    border-radius: 20px;
+    color: #fff;
+    -moz-border-radius:20px;
+    width: 100%;
+    font-size: 15px;
+}
+
+.compstableclass td
+{
+    width: 5px;
+}

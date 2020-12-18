@@ -9,6 +9,8 @@ from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from helpers import timecheck, lookup, company_profile
 import pytz
+import finnhub
+
 
 #db = SQL("sqlite:///finance.db")
 db = SQL(os.environ.get("postgres://jfbpknqvvinlsw:a0b3987fc025df9455b8ce55e807c2f572bec567efae497c3bb03525f3017c7b@ec2-54-146-118-15.compute-1.amazonaws.com:5432/d4kvpncu0qvihd") or "sqlite:///finance.db")
@@ -54,11 +56,89 @@ def prices_update(ticker):
         price = quote["price"]
         change = 0
         if quote["change"] is not None:
-            change = float(quote["change"])        
+            change = float(quote["change"])
         profile = company_profile(ticker)
         if profile is not None:
             industry = profile["industry"]
         else:
             industry = "misc."
         db.execute("UPDATE prices SET date = :date, time = :time, price = :price, industry = :industry, change = :change WHERE ticker = :ticker", date = current_date, time = hour_min, price = price, industry = industry, change = change, ticker = ticker)
+
+finnhub_client = finnhub.Client(api_key = "bvbb94v48v6q7r401fn0")
+
+def financials_update(ticker):
+
+    financials = {}
+
+    ct_fh_financials1 = finnhub_client.company_basic_financials(ticker, 'all')['metric']
+    ct_fh_financials2 = finnhub_client.company_profile2(symbol = ticker)
+
+    if (len(ct_fh_financials1) == 0 or len(ct_fh_financials2) == 0):
+        return financials
+
+    share_count = ct_fh_financials2["shareOutstanding"]
+    financials["shares"] = share_count
+
+    financials["ebitda"] = 0
+    if ct_fh_financials1["ebitdPerShareTTM"] is not None:
+        financials['ebitda'] = share_count * ct_fh_financials1["ebitdPerShareTTM"]
+
+    financials['sales'] = 0
+    if ct_fh_financials1["revenuePerShareTTM"] is not None:
+        financials['sales'] = share_count * ct_fh_financials1["revenuePerShareTTM"]
+
+    market_cap = ct_fh_financials1["marketCapitalization"]
+    financials["marketcap"] = market_cap
+    net_debt = ct_fh_financials1["netDebtAnnual"]
+    financials["netdebt"] = net_debt
+    ev = market_cap + net_debt
+    financials['ev'] = market_cap + net_debt
+
+    financials["evsales"] = 0
+    if (financials['sales'] != 0):
+        evsales = ev/financials['sales']
+        financials['evsales'] = evsales
+
+    evebitda = 0
+    if (financials['ebitda']!=0):
+        evebitda = ev/financials['ebitda']
+    financials['evebitda'] = evebitda
+
+   #financials["revgrowththree"] = 0
+    #if (ct_fh_financials1["revenueGrowth3Y"] is not None):
+    financials['revgrowththree'] = ct_fh_financials1["revenueGrowth3Y"]
+
+    #financials["revgrowthttm"] = 0
+   # if (ct_fh_financials1["revenueGrowthTTMYoy"] is not None):
+    financials['revgrowthttm'] = ct_fh_financials1["revenueGrowthTTMYoy"]
+
+    """financials["epsgrowththree"] = 0
+    if (ct_fh_financials1["epsGrowth3Y"] is not None):"""
+    financials['epsgrowththree'] = ct_fh_financials1["epsGrowth3Y"]
+
+    """financials["operatingmarginttm"] = 0
+    if (ct_fh_financials1["operatingMarginTTM"] is not None):"""
+    financials['operatingmarginttm'] = ct_fh_financials1["operatingMarginTTM"]
+
+    #financials["roeTTM"] = 0
+    #if (ct_fh_financials1["roeTTM"] is not None):
+    financials['roeTTM'] = ct_fh_financials1["roeTTM"]
+
+    #financials["debttoequity"] = 0
+    #if (ct_fh_financials1["totalDebt/totalEquityQuarterly"] is not None):
+    financials['debttoequity'] = ct_fh_financials1["totalDebt/totalEquityQuarterly"]
+
+   # financials["roi"] = 0
+    #if (ct_fh_financials1["roiTTM"] is not None):
+    financials['roi'] = ct_fh_financials1["roiTTM"]
+
+    #financials["netmargin"] = 0
+    #if (ct_fh_financials1["netProfitMarginTTM"] is not None):
+    financials['netmargin'] = ct_fh_financials1["netProfitMarginTTM"]
+
+    #financials["beta"] = 0
+   # if (ct_fh_financials1["beta"] is not None):
+    financials['beta'] = ct_fh_financials1["beta"]
+    print(financials)
+    return financials
 

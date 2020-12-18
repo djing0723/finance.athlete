@@ -3,7 +3,7 @@ import os
 from cs50 import SQL
 import sqlite3
 import finnhub
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, flash, redirect, render_template, request, session, send_file
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
@@ -14,8 +14,9 @@ from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 import pytz
 from helpers import apology, login_required, lookup, news_lookup, usd, company_profile, timecheck
-from helpers2 import prices_update
+from helpers2 import prices_update, financials_update
 from millify import millify
+import csv
 
 # Configure application
 app = Flask(__name__)
@@ -148,7 +149,7 @@ def index():
     #loop through user positions and add relevant lists
     if len(rows)!=0:
         user_equity = 0
-        total = 0
+        total = user_cash
 
         for i in range(0, len(rows)):
             #price_lookup = db.execute("SELECT date, time, ticker, price, change, industry FROM prices")
@@ -218,6 +219,11 @@ def index():
         rows2 = []
         overall_pct_string = "0%"
 
+    if len(db.execute("SELECT * FROM performance WHERE user_id = :user_id AND date = :current_date", user_id = user_id, current_date= current_date)) == 0:
+        db.execute("INSERT INTO performance (user_id, portfolio, date) VALUES(?,?,?)", user_id, total, current_date)
+    else:
+        db.execute("UPDATE performance SET portfolio = :total WHERE user_id = :id AND date = :current_date", total = total, id = user_id, current_date = current_date)
+
     #query the total amount per style
     style_rows = db.execute("SELECT style, sum(MarketValue) as MarketValue from (SELECT prices.price * sum(quantity) as MarketValue, lower(trim(style)) as style, user_id, positions.ticker, SUM(quantity) as quantity, SUM(positions.price* quantity)/SUM(quantity) as CostBasis FROM positions join prices on prices.ticker = positions.ticker where user_id = :user_id GROUP BY user_id, style, positions.ticker HAVING sum(quantity)<>0) group by style", user_id = user_id)
 
@@ -256,7 +262,7 @@ def index():
     #calendar.clear()
 
     #calculate two weeks ago and two weeks later. will be the timeframe of our relevant earnings
-    two_weeks_ago = (date.today() + relativedelta(weeks = -2)).strftime("%Y-%m-%d")
+    """two_weeks_ago = (date.today() + relativedelta(weeks = -2)).strftime("%Y-%m-%d")
     two_weeks_later = (date.today() + relativedelta(weeks = 2)).strftime("%Y-%m-%d")
 
     #get the closest earnings for each stock in our portfolio
@@ -297,8 +303,9 @@ def index():
             future_earnings[i]["hour"] = "After Market"
 
     #print("EARNS: ", future_earnings);
-    #print("Prev: ", prev_earnings);
-    return render_template("index.html", rows = rows, rows2 = rows2, rows3 = rows3, user_cash = usd(user_cash), user_equity = usd(user_equity), total = usd(total), overall_pct = overall_pct_string, spy_pct_string = spy_pct_string, qqq_pct_string = qqq_pct_string, time_to_display= time_to_display, style_list = style_list, prev_earnings = prev_earnings, future_earnings = future_earnings)
+    #print("Prev: ", prev_earnings);"""
+    print(financials_update("WORK"))
+    return render_template("index.html", rows = rows, rows2 = rows2, rows3 = rows3, user_cash = usd(user_cash), user_equity = usd(user_equity), total = usd(total), overall_pct = overall_pct_string, spy_pct_string = spy_pct_string, qqq_pct_string = qqq_pct_string, time_to_display= time_to_display, style_list = style_list)
 
 @app.route("/watchlist", methods = ["GET", "POST"])
 @login_required
@@ -715,7 +722,63 @@ def register():
         return render_template("register.html")
     return apology("TODO")
 
+@app.route("/earningscalendar", methods = ["GET"])
+@login_required
+def earnings_calendar():
 
+    current_date = date.today().strftime('%Y-%m-%d')
+    current_time = datetime.now(pytz.timezone("America/New_York"))
+    current_minute = str(current_time.minute)
+    hour_min = int(str(current_time.hour) + current_minute)
+       #creating calendar array
+   #calendar = []
+    #calendar.clear()
+    user_id = session["user_id"]
+    rows = db.execute("SELECT user_id, ticker, SUM(quantity) as quantity, SUM(price* quantity)/SUM(quantity) as CostBasis FROM positions where user_id = :id GROUP BY user_id, ticker HAVING sum(quantity)<>0", id = session["user_id"])
+    #calculate two weeks ago and two weeks later. will be the timeframe of our relevant earnings
+    two_weeks_ago = (date.today() + relativedelta(weeks = -2)).strftime("%Y-%m-%d")
+    two_weeks_later = (date.today() + relativedelta(weeks = 2)).strftime("%Y-%m-%d")
+
+    #get the closest earnings for each stock in our portfolio
+    for i in range(0, len(rows)):
+        latest_ec = db.execute("SELECT * FROM earnings_calendar WHERE symbol = :symbol AND date_updated = :date_updated AND real = :real", symbol = rows[i]["ticker"], date_updated = current_date, real = "true")
+        latest_ec_fill = db.execute("SELECT * FROM earnings_calendar WHERE symbol = :symbol AND date_updated = :date_updated AND real = :real", symbol = rows[i]["ticker"], date_updated = current_date, real = "false")
+
+        if (len(latest_ec_fill) == 0 and len(latest_ec) == 0):
+            ec1 = finnhub_client.earnings_calendar(_from=two_weeks_ago, to=two_weeks_later, symbol = rows[i]["ticker"])["earningsCalendar"]
+            if (len(ec1) != 0):
+                ec = ec1[0]
+                if (ec["date"] >= two_weeks_ago and ec["date"] <= two_weeks_later):
+                    db.execute("INSERT INTO earnings_calendar (date, epsActual, epsEstimate, hour, quarter, revenueActual, revenueEstimate, symbol, year, date_updated, real) VALUES(?,?,?,?,?,?,?,?,?,?,?)", ec["date"], ec["epsActual"], ec["epsEstimate"], ec["hour"], ec["quarter"], ec["revenueActual"], ec["revenueEstimate"], ec["symbol"], ec["year"], current_date, "true")
+                else:
+                    db.execute("INSERT INTO earnings_calendar (date, epsActual, epsEstimate, hour, quarter, revenueActual, revenueEstimate, symbol, year, date_updated, real) VALUES(?,?,?,?,?,?,?,?,?,?,?)", current_date, 0, 0, 0, 0,0, 0, rows[i]["ticker"], 0, current_date, "false")
+
+                #db.execute("SELECT * FROM earnings_calendar WHERE symbol = :symbol AND date_updated = :date_updated", symbol = rows[i]["ticker"], date_updated = current_date
+    prev_earnings = db.execute("SELECT DISTINCT epsActual, epsEstimate, revenueEstimate, revenueActual, hour, date, quarter,symbol,year FROM earnings_calendar WHERE date >= :date_two_weeks_ago AND date < :current_date AND symbol in (SELECT ticker FROM total_positions WHERE user_id = :user_id) AND real = :real ORDER BY date DESC", date_two_weeks_ago = two_weeks_ago, current_date = current_date, user_id = user_id, real = "true")
+    for i in range(0, len(prev_earnings)):
+        prev_earnings[i]["epsBeat"] = "{:.2%}".format(prev_earnings[i]["epsActual"]/prev_earnings[i]["epsEstimate"]-1)
+        prev_earnings[i]["revenueBeat"] = "{:.2%}".format(prev_earnings[i]["revenueActual"]/prev_earnings[i]["revenueEstimate"]-1)
+        prev_earnings[i]["epsActual"] = usd(prev_earnings[i]["epsActual"])
+        prev_earnings[i]["epsEstimate"] = usd(prev_earnings[i]["epsEstimate"] )
+        prev_earnings[i]["revenueEstimate"] = "$" + millify(prev_earnings[i]["revenueEstimate"], precision = 2)
+        prev_earnings[i]["revenueActual"] = "$" + millify(prev_earnings[i]["revenueActual"], precision = 2)
+        if prev_earnings[i]["hour"] == "bmo":
+            prev_earnings[i]["hour"] = "Pre Market"
+        if prev_earnings[i]["hour"] == "amc":
+            prev_earnings[i]["hour"] = "After Market"
+#same as previous earnings
+    future_earnings = db.execute("SELECT DISTINCT epsActual, epsEstimate, revenueEstimate, revenueActual, hour, date, quarter,symbol,year FROM earnings_calendar WHERE date >= :current_date AND date < :two_weeks_later AND symbol in (SELECT ticker FROm total_positions WHERE user_id = :user_id) AND real = :real ORDER BY date ASC", two_weeks_later = two_weeks_later, current_date = current_date, user_id = user_id, real = "true")
+    for i in range(0, len(future_earnings)):
+        future_earnings[i]["epsEstimate"] = usd(future_earnings[i]["epsEstimate"])
+        future_earnings[i]["revenueEstimate"] = "$" + millify(future_earnings[i]["revenueEstimate"], precision = 2)
+        if future_earnings[i]["hour"] == "bmo":
+            future_earnings[i]["hour"] = "Pre Market"
+        if future_earnings[i]["hour"] == "amc":
+            future_earnings[i]["hour"] = "After Market"
+
+    return render_template("earnings.html", prev_earnings = prev_earnings, future_earnings = future_earnings)
+    #print("EARNS: ", future_earnings);
+    #print("Prev: ", prev_earnings);
 
 @app.route("/stock", methods = ["GET", "POST"])
 @login_required
@@ -751,9 +814,10 @@ def stock():
         financials = finnhub_client.company_basic_financials(ticker, 'all')['metric']
         target_price = finnhub_client.price_target(ticker)
         comps = finnhub_client.company_peers(ticker)
+        quote = finnhub_client.quote(ticker)
         #print(financials)
 
-        if (financials is not None and profile is not None):
+        if (financials is not None and profile is not None and quote is not None):
         #image = profile["logo"]
             industry = profile["industry"]
             url = profile["url"]
@@ -768,7 +832,6 @@ def stock():
             # Profile
             profile = finnhub_client.company_profile2(symbol=ticker)
             # Quote
-            quote = finnhub_client.quote(ticker)
             # Basic Financials
             financials = finnhub_client.company_basic_financials(ticker, 'all')['metric']
             # Target
@@ -804,6 +867,139 @@ def markets():
 def documentation():
     #return documentation page. nothign to pass in here
     return render_template("documentation.html")
+
+@app.route("/comps", methods=["GET", "POST"])
+@login_required
+def comps():
+
+    current_date = date.today().strftime('%Y-%m-%d')
+    current_time = datetime.now(pytz.timezone("America/New_York"))
+    current_minute = str(current_time.minute)
+    hour_min = int(str(current_time.hour) + current_minute)
+
+    user_id = session["user_id"]
+
+    if request.method == "GET":
+        return render_template("comps_search.html")
+
+    if request.method == "POST":
+        ticker = request.form.get("comp_ticker").strip().upper()
+        financials1 = finnhub_client.company_basic_financials(ticker, 'all')['metric']
+        financials2 = finnhub_client.company_profile2(symbol = ticker)
+
+        if lookup(ticker) is None:
+            return apology("Unsupported Ticker", 400)
+        if financials1 is None:
+            return apology("Unsupported Ticker", 400)
+
+        existing_comps = db.execute("SELECT * FROM comps_tickers WHERE user_id = :user_id AND ticker = :ticker", user_id = user_id, ticker = ticker)
+
+        if (len(existing_comps) == 0):
+            fh_comps = finnhub_client.company_peers(ticker)
+            if ticker not in fh_comps:
+                fh_comps.append(ticker)
+            for comp in fh_comps:
+                comp_financials = financials_update(comp)
+                if len(comp_financials) != 0:
+                    db.execute("INSERT INTO comps_tickers (user_id, ticker, comp) VALUES (?,?,?)", user_id, ticker, comp)
+                    existing_comps_table = db.execute("SELECT * FROM company_financials WHERE ticker = :ticker AND updated = :updated", ticker = comp, updated = current_date)
+                    if len(existing_comps_table) == 0:
+                        db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roeTTM, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", comp, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roeTTM"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"])
+
+
+        for i in range(0, len(existing_comps)):
+            comp_ticker = existing_comps[i]["comp"]
+            ct_financials = db.execute("SELECT * FROM company_financials WHERE ticker = :ticker AND updated = :current_date", ticker = comp_ticker, current_date = current_date)
+            if len(ct_financials) == 0:
+
+                comp_financials = financials_update(comp_ticker)
+                updated = current_date
+
+                if len(comp_financials) != 0:
+                    db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roeTTM, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", comp_ticker, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roeTTM"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"])
+
+        comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :ticker AND comps_tickers.user_id = :user_id", ticker = ticker, user_id = user_id)
+        return render_template("comps.html", comps = comps, parent_ticker = ticker)
+
+@app.route("/addstockcomps", methods=["GET", "POST"])
+@login_required
+def addstockcomps():
+    current_date = date.today().strftime('%Y-%m-%d')
+    user_id = session["user_id"]
+
+    if request.method == "GET":
+        return render_template("comps_search.html")
+
+    if request.method == "POST":
+        ticker = request.form.get("stock").strip().upper()
+        parent_ticker = request.form.get("parent_ticker").strip().upper()
+        add_financials = financials_update(ticker)
+
+        if (len(add_financials) == 0):
+            return apology("Ticker not found", 404)
+
+        current_financials = db.execute("SELECT * FROM company_financials WHERE ticker = :ticker AND updated = :current_date", ticker = ticker, current_date = current_date)
+        current_comps = db.execute("SELECT * FROM comps_tickers WHERE user_id = :user_id AND ticker = :parent_ticker AND comp = :ticker", user_id = user_id, parent_ticker = parent_ticker, ticker = ticker)
+
+        if (len(current_comps) > 0):
+            return apology("Comp already exists", 404)
+        else:
+            db.execute("INSERT INTO comps_tickers (user_id, ticker, comp) VALUES (?,?,?)", user_id, parent_ticker, ticker)
+
+        if len(current_financials) == 0:
+            comp_financials = financials_update(ticker)
+            updated = current_date
+
+            db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roeTTM, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", ticker, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roeTTM"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"])
+
+        comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id", parent_ticker = parent_ticker, user_id = user_id)
+        return render_template("comps.html", comps = comps, parent_ticker = parent_ticker)
+
+@app.route("/delstockcomps", methods=["POST"])
+@login_required
+def delstockcomps():
+    current_date = date.today().strftime('%Y-%m-%d')
+    user_id = session["user_id"]
+
+    if request.method == "POST":
+        ticker = request.form.get("stock").strip().upper()
+        parent_ticker = request.form.get("parent_ticker").strip().upper()
+
+        if ticker == parent_ticker:
+            return apology("Cannot delete parent ticker", 404)
+
+        db.execute("DELETE FROM comps_tickers WHERE user_id = :user_id AND ticker = :parent_ticker AND comp = :ticker", user_id = user_id, parent_ticker = parent_ticker, ticker = ticker)
+
+        comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id", parent_ticker = parent_ticker, user_id = user_id)
+        return render_template("comps.html", comps = comps, parent_ticker = parent_ticker)
+
+@app.route("/downloadcomps", methods=["POST"])
+@login_required
+def downloadcomps():
+    current_date = date.today().strftime('%Y-%m-%d')
+    user_id = session["user_id"]
+
+    if request.method == "POST":
+        parent_ticker = request.form.get("parent_ticker").strip().upper()
+
+        comps_dl = db.execute("SELECT comps_tickers.comp, company_financials.marketcap, company_financials.ev, company_financials.evsales, company_financials.evebitda, company_financials.revgrowththree, company_financials.revgrowthttm, company_financials.epsgrowththree, company_financials.operatingmarginttm, company_financials.netmargin, company_financials.roeTTM, company_financials.roi FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker  WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id", parent_ticker = parent_ticker, user_id = user_id)
+        comps_dl_keys =  comps_dl[0].keys()
+
+        comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id", parent_ticker = parent_ticker, user_id = user_id)
+
+        filename = parent_ticker + "_comps.csv"
+
+        with open("file.csv", 'w', newline='') as f:
+            #for row in comps_dl:
+            writer = csv.DictWriter(f, comps_dl_keys)
+            writer.writeheader()
+            writer.writerows(comps_dl)
+
+        return send_file('file.csv',
+                     mimetype='text/csv',
+                     attachment_filename=filename,
+                     as_attachment=True)
+        return render_template("comps.html", comps = comps, parent_ticker = parent_ticker)
 
 def errorhandler(e):
     """Handle error"""
