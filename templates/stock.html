@@ -237,6 +237,9 @@ function showPage() {
           <div class = "stockheader">
             <h1 >{{ticker}} Comparables</h1>
           </div>
+         <form action = "/comps" method = "POST" style = "margin-top: 5px;">
+           <button type = "submit" name = "comp_ticker" value = {{ticker}} class = "stock-input-button">View Full Comps Table</button>
+       </form>
         <table id="comp-card" class = "tableclass">
             <tbody>
               {%for comp in comps %}
@@ -254,9 +257,7 @@ function showPage() {
        {% else %}
        {% endif %}
 
-       <form action = "/comps" method = "POST" style = "margin-top: 10px;">
-           <button type = "submit" name = "comp_ticker" value = {{ticker}} class = "stock-input-button">View Full Comps Table</button>
-       </form>
+
 
         {% if news is not none %}
         <div id = "news">

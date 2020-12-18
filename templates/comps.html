@@ -56,7 +56,7 @@ function showPage() {
 
 <form action = "/downloadcomps" method = "post">
     <input type = "hidden" value = {{parent_ticker}} name = "parent_ticker">
-    <button type = "submit" class = "stock-input-button">Download as CSV</button>
+    <button type = "submit" class = "stock-input-button">Download as <img src = "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Microsoft_Excel_2013_logo.svg/611px-Microsoft_Excel_2013_logo.svg.png" style = "height: 25px; widhth: 25px;"> </button>
 </form>
 
 <table class = "compstableclass" class = "watchlisttable" style = "margin-top: 20px;">
@@ -101,35 +101,35 @@ function showPage() {
             <td>{{comp.evsales|round(1, 'common')}}</td>
             <td>{{comp.evebitda|round(1, 'common')}}</td>
             <td>{% if comp.revgrowththree is not none %}
-                {{comp.revgrowththree|round(1, 'common')}}
+                {{comp.revgrowththree|round(1, 'common')}}%
                 {% else %}
                 {% endif %}</td>
             <td>{% if comp.revgrowthttm is not none %}
-                {{comp.revgrowthttm|round(1, 'common')}}
+                {{comp.revgrowthttm|round(1, 'common')}}%
                 {% else %}
                 {% endif %}</td>
             <td>{% if comp.epsgrowththree is not none %}
-                {{comp.epsgrowththree|round(1, 'common')}}
+                {{comp.epsgrowththree|round(1, 'common')}}%
                 {% else %}
                 {% endif %}</td>
             <td>{% if comp.operatingmarginttm is not none %}
-                {{comp.operatingmarginttm|round(1, 'common')}}
+                {{comp.operatingmarginttm|round(1, 'common')}}%
                 {% else %}
                 {% endif %}</td>
             <td>{% if comp.netmargin is not none %}
-                {{comp.netmargin|round(1, 'common')}}
+                {{comp.netmargin|round(1, 'common')}}%
                 {% else %}
                 {% endif %}</td>
             <td>{% if comp.roeTTM is not none %}
-                {{comp.roeTTM|round(1, 'common')}}
+                {{comp.roeTTM|round(1, 'common')}}%
                 {% else %}
                 {% endif %}</td>
             <td>{% if comp.roi is not none %}
-                {{comp.roi|round(1, 'common')}}
+                {{comp.roi|round(1, 'common')}}%
                 {% else %}
                 {% endif %}</td>
             <td>{% if comp.debtequity is not none %}
-                {{comp.debtequity|round(1, 'common')}}
+                {{comp.debtequity|round(1, 'common')}}%
                 {% else %}
                 {% endif %}</td>
             <td>{% if comp.beta is not none %}
