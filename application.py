@@ -918,7 +918,7 @@ def comps():
                 if len(comp_financials) != 0:
                     db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roeTTM, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", comp_ticker, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roeTTM"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"])
 
-        comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :ticker AND comps_tickers.user_id = :user_id", ticker = ticker, user_id = user_id)
+        comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :ticker AND comps_tickers.user_id = :user_id AND updated = :current_date", ticker = ticker, user_id = user_id, current_date = current_date)
         return render_template("comps.html", comps = comps, parent_ticker = ticker)
 
 @app.route("/addstockcomps", methods=["GET", "POST"])
@@ -952,7 +952,7 @@ def addstockcomps():
 
             db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roeTTM, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", ticker, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roeTTM"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"])
 
-        comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id", parent_ticker = parent_ticker, user_id = user_id)
+        comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id AND updated = :current_date", parent_ticker = parent_ticker, user_id = user_id,current_date = current_date)
         return render_template("comps.html", comps = comps, parent_ticker = parent_ticker)
 
 @app.route("/delstockcomps", methods=["POST"])
@@ -970,8 +970,8 @@ def delstockcomps():
 
         db.execute("DELETE FROM comps_tickers WHERE user_id = :user_id AND ticker = :parent_ticker AND comp = :ticker", user_id = user_id, parent_ticker = parent_ticker, ticker = ticker)
 
-        comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id", parent_ticker = parent_ticker, user_id = user_id)
-        return render_template("comps.html", comps = comps, parent_ticker = parent_ticker)
+        comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id AND updated = :current_date", parent_ticker = parent_ticker, user_id = user_id)
+        return render_template("comps.html", comps = comps, parent_ticker = parent_ticker,current_date = current_date)
 
 @app.route("/downloadcomps", methods=["POST"])
 @login_required
