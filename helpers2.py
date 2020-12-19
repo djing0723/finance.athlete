@@ -14,8 +14,8 @@ import psycopg2
 
 
 #db = SQL("sqlite:///finance.db")
-db = SQL(os.environ.get("postgres://jfbpknqvvinlsw:a0b3987fc025df9455b8ce55e807c2f572bec567efae497c3bb03525f3017c7b@ec2-54-146-118-15.compute-1.amazonaws.com:5432/d4kvpncu0qvihd") or "sqlite:///finance.db")
-#db = SQL(os.environ.get("postgres://jfbpknqvvinlsw:a0b3987fc025df9455b8ce55e807c2f572bec567efae497c3bb03525f3017c7b@ec2-54-146-118-15.compute-1.amazonaws.com:5432/d4kvpncu0qvihd"))
+#db = SQL(os.environ.get("postgres://jfbpknqvvinlsw:a0b3987fc025df9455b8ce55e807c2f572bec567efae497c3bb03525f3017c7b@ec2-54-146-118-15.compute-1.amazonaws.com:5432/d4kvpncu0qvihd") or "sqlite:///finance.db")
+db = SQL(os.environ.get("postgres://jfbpknqvvinlsw:a0b3987fc025df9455b8ce55e807c2f572bec567efae497c3bb03525f3017c7b@ec2-54-146-118-15.compute-1.amazonaws.com:5432/d4kvpncu0qvihd"))
 
 
 #this helps us update prices when we want
@@ -43,7 +43,7 @@ def prices_update(ticker):
         quote = lookup(ticker)
         profile = company_profile(ticker)
         industry = ""
-        if profile is not None:
+        if len(profile)>0:
             industry = profile["industry"]
         else:
             industry = "misc."
@@ -61,7 +61,7 @@ def prices_update(ticker):
         if quote["change"] is not None:
             change = float(quote["change"])
         profile = company_profile(ticker)
-        if profile is not None:
+        if len(profile)>0:
             industry = profile["industry"]
         else:
             industry = "misc."
