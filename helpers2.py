@@ -10,6 +10,7 @@ from dateutil.relativedelta import relativedelta
 from helpers import timecheck, lookup, company_profile
 import pytz
 import finnhub
+import psycopg2
 
 
 #db = SQL("sqlite:///finance.db")
