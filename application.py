@@ -227,7 +227,7 @@ def index():
         db.execute("UPDATE performance SET portfolio = :total WHERE user_id = :id AND date = :current_date", total = total, id = user_id, current_date = current_date)
 
     #query the total amount per style
-    style_rows = db.execute("SELECT style, sum(MarketValue) as MarketValue from (SELECT prices.price * sum(quantity) as MarketValue, lower(trim(style)) as style, user_id, positions.ticker, SUM(quantity) as quantity, SUM(positions.price* quantity)/SUM(quantity) as CostBasis FROM positions join prices on prices.ticker = positions.ticker where user_id = :user_id GROUP BY user_id, style, positions.ticker HAVING sum(quantity)<>0) AS total_positions group by style", user_id = user_id)
+    style_rows = db.execute("SELECT style, sum(MarketValue) as MarketValue from (SELECT prices.price * sum(quantity) as MarketValue, lower(trim(style)) as style, user_id, positions.ticker, SUM(quantity) as quantity, SUM(positions.price* quantity)/SUM(quantity) as CostBasis FROM positions join prices on prices.ticker = positions.ticker where user_id = :user_id GROUP BY user_id, style, positions.ticker, prices.price HAVING sum(quantity)<>0) AS total_positions group by style", user_id = user_id)
 
     #append the styles and amount, we can now graph this in index
     for i in range(0, len(style_rows)):
