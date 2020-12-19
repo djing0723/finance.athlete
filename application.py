@@ -277,28 +277,28 @@ def index():
             if (len(ec1) != 0):
                 ec = ec1[0]
                 if (ec["date"] >= two_weeks_ago and ec["date"] <= two_weeks_later):
-                    db.execute("INSERT INTO earnings_calendar (date, epsActual, epsEstimate, hour, quarter, revenueActual, revenueEstimate, symbol, year, date_updated, real) VALUES(?,?,?,?,?,?,?,?,?,?,?)", ec["date"], ec["epsActual"], ec["epsEstimate"], ec["hour"], ec["quarter"], ec["revenueActual"], ec["revenueEstimate"], ec["symbol"], ec["year"], current_date, "true")
+                    db.execute("INSERT INTO earnings_calendar (date, epsactual, epsestimate, hour, quarter, revenueactual, revenueestimate, symbol, year, date_updated, real) VALUES(?,?,?,?,?,?,?,?,?,?,?)", ec["date"], ec["epsactual"], ec["epsestimate"], ec["hour"], ec["quarter"], ec["revenueactual"], ec["revenueestimate"], ec["symbol"], ec["year"], current_date, "true")
                 else:
-                    db.execute("INSERT INTO earnings_calendar (date, epsActual, epsEstimate, hour, quarter, revenueActual, revenueEstimate, symbol, year, date_updated, real) VALUES(?,?,?,?,?,?,?,?,?,?,?)", current_date, 0, 0, 0, 0,0, 0, rows[i]["ticker"], 0, current_date, "false")
+                    db.execute("INSERT INTO earnings_calendar (date, epsactual, epsestimate, hour, quarter, revenueactual, revenueestimate, symbol, year, date_updated, real) VALUES(?,?,?,?,?,?,?,?,?,?,?)", current_date, 0, 0, 0, 0,0, 0, rows[i]["ticker"], 0, current_date, "false")
 
                 #db.execute("SELECT * FROM earnings_calendar WHERE symbol = :symbol AND date_updated = :date_updated", symbol = rows[i]["ticker"], date_updated = current_date
-    prev_earnings = db.execute("SELECT DISTINCT epsActual, epsEstimate, revenueEstimate, revenueActual, hour, date, quarter,symbol,year FROM earnings_calendar WHERE date >= :date_two_weeks_ago AND date < :current_date AND symbol in (SELECT ticker FROM total_positions WHERE user_id = :user_id) AND real = :real ORDER BY date DESC", date_two_weeks_ago = two_weeks_ago, current_date = current_date, user_id = user_id, real = "true")
+    prev_earnings = db.execute("SELECT DISTINCT epsactual, epsestimate, revenueestimate, revenueactual, hour, date, quarter,symbol,year FROM earnings_calendar WHERE date >= :date_two_weeks_ago AND date < :current_date AND symbol in (SELECT ticker FROM total_positions WHERE user_id = :user_id) AND real = :real ORDER BY date DESC", date_two_weeks_ago = two_weeks_ago, current_date = current_date, user_id = user_id, real = "true")
     for i in range(0, len(prev_earnings)):
-        prev_earnings[i]["epsBeat"] = "{:.2%}".format(prev_earnings[i]["epsActual"]/prev_earnings[i]["epsEstimate"]-1)
-        prev_earnings[i]["revenueBeat"] = "{:.2%}".format(prev_earnings[i]["revenueActual"]/prev_earnings[i]["revenueEstimate"]-1)
-        prev_earnings[i]["epsActual"] = usd(prev_earnings[i]["epsActual"])
-        prev_earnings[i]["epsEstimate"] = usd(prev_earnings[i]["epsEstimate"] )
-        prev_earnings[i]["revenueEstimate"] = "$" + millify(prev_earnings[i]["revenueEstimate"], precision = 2)
-        prev_earnings[i]["revenueActual"] = "$" + millify(prev_earnings[i]["revenueActual"], precision = 2)
+        prev_earnings[i]["epsbeat"] = "{:.2%}".format(prev_earnings[i]["epsactual"]/prev_earnings[i]["epsestimate"]-1)
+        prev_earnings[i]["revenueBeat"] = "{:.2%}".format(prev_earnings[i]["revenueactual"]/prev_earnings[i]["revenueestimate"]-1)
+        prev_earnings[i]["epsactual"] = usd(prev_earnings[i]["epsactual"])
+        prev_earnings[i]["epsestimate"] = usd(prev_earnings[i]["epsestimate"] )
+        prev_earnings[i]["revenueestimate"] = "$" + millify(prev_earnings[i]["revenueestimate"], precision = 2)
+        prev_earnings[i]["revenueactual"] = "$" + millify(prev_earnings[i]["revenueactual"], precision = 2)
         if prev_earnings[i]["hour"] == "bmo":
             prev_earnings[i]["hour"] = "Pre Market"
         if prev_earnings[i]["hour"] == "amc":
             prev_earnings[i]["hour"] = "After Market"
 #same as previous earnings
-    future_earnings = db.execute("SELECT DISTINCT epsActual, epsEstimate, revenueEstimate, revenueActual, hour, date, quarter,symbol,year FROM earnings_calendar WHERE date >= :current_date AND date < :two_weeks_later AND symbol in (SELECT ticker FROm total_positions WHERE user_id = :user_id) AND real = :real ORDER BY date ASC", two_weeks_later = two_weeks_later, current_date = current_date, user_id = user_id, real = "true")
+    future_earnings = db.execute("SELECT DISTINCT epsactual, epsestimate, revenueestimate, revenueactual, hour, date, quarter,symbol,year FROM earnings_calendar WHERE date >= :current_date AND date < :two_weeks_later AND symbol in (SELECT ticker FROm total_positions WHERE user_id = :user_id) AND real = :real ORDER BY date ASC", two_weeks_later = two_weeks_later, current_date = current_date, user_id = user_id, real = "true")
     for i in range(0, len(future_earnings)):
-        future_earnings[i]["epsEstimate"] = usd(future_earnings[i]["epsEstimate"])
-        future_earnings[i]["revenueEstimate"] = "$" + millify(future_earnings[i]["revenueEstimate"], precision = 2)
+        future_earnings[i]["epsestimate"] = usd(future_earnings[i]["epsestimate"])
+        future_earnings[i]["revenueestimate"] = "$" + millify(future_earnings[i]["revenueestimate"], precision = 2)
         if future_earnings[i]["hour"] == "bmo":
             future_earnings[i]["hour"] = "Pre Market"
         if future_earnings[i]["hour"] == "amc":
@@ -751,28 +751,28 @@ def earnings_calendar():
             if (len(ec1) != 0):
                 ec = ec1[0]
                 if (ec["date"] >= two_weeks_ago and ec["date"] <= two_weeks_later):
-                    db.execute("INSERT INTO earnings_calendar (date, epsActual, epsEstimate, hour, quarter, revenueActual, revenueEstimate, symbol, year, date_updated, real) VALUES(?,?,?,?,?,?,?,?,?,?,?)", ec["date"], ec["epsActual"], ec["epsEstimate"], ec["hour"], ec["quarter"], ec["revenueActual"], ec["revenueEstimate"], ec["symbol"], ec["year"], current_date, "true")
+                    db.execute("INSERT INTO earnings_calendar (date, epsactual, epsestimate, hour, quarter, revenueactual, revenueestimate, symbol, year, date_updated, real) VALUES(?,?,?,?,?,?,?,?,?,?,?)", ec["date"], ec["epsactual"], ec["epsestimate"], ec["hour"], ec["quarter"], ec["revenueactual"], ec["revenueestimate"], ec["symbol"], ec["year"], current_date, "true")
                 else:
-                    db.execute("INSERT INTO earnings_calendar (date, epsActual, epsEstimate, hour, quarter, revenueActual, revenueEstimate, symbol, year, date_updated, real) VALUES(?,?,?,?,?,?,?,?,?,?,?)", current_date, 0, 0, 0, 0,0, 0, rows[i]["ticker"], 0, current_date, "false")
+                    db.execute("INSERT INTO earnings_calendar (date, epsactual, epsestimate, hour, quarter, revenueactual, revenueestimate, symbol, year, date_updated, real) VALUES(?,?,?,?,?,?,?,?,?,?,?)", current_date, 0, 0, 0, 0,0, 0, rows[i]["ticker"], 0, current_date, "false")
 
                 #db.execute("SELECT * FROM earnings_calendar WHERE symbol = :symbol AND date_updated = :date_updated", symbol = rows[i]["ticker"], date_updated = current_date
-    prev_earnings = db.execute("SELECT DISTINCT epsActual, epsEstimate, revenueEstimate, revenueActual, hour, date, quarter,symbol,year FROM earnings_calendar WHERE date >= :date_two_weeks_ago AND date < :current_date AND symbol in (SELECT ticker FROM positions where user_id = :user_id GROUP BY ticker HAVING sum(quantity)<>0) AND real = :real ORDER BY date DESC", date_two_weeks_ago = two_weeks_ago, current_date = current_date, user_id = user_id, real = "true")
+    prev_earnings = db.execute("SELECT DISTINCT epsactual, epsestimate, revenueestimate, revenueactual, hour, date, quarter,symbol,year FROM earnings_calendar WHERE date >= :date_two_weeks_ago AND date < :current_date AND symbol in (SELECT ticker FROM positions where user_id = :user_id GROUP BY ticker HAVING sum(quantity)<>0) AND real = :real ORDER BY date DESC", date_two_weeks_ago = two_weeks_ago, current_date = current_date, user_id = user_id, real = "true")
     for i in range(0, len(prev_earnings)):
-        prev_earnings[i]["epsBeat"] = "{:.2%}".format(prev_earnings[i]["epsActual"]/prev_earnings[i]["epsEstimate"]-1)
-        prev_earnings[i]["revenueBeat"] = "{:.2%}".format(prev_earnings[i]["revenueActual"]/prev_earnings[i]["revenueEstimate"]-1)
-        prev_earnings[i]["epsActual"] = usd(prev_earnings[i]["epsActual"])
-        prev_earnings[i]["epsEstimate"] = usd(prev_earnings[i]["epsEstimate"] )
-        prev_earnings[i]["revenueEstimate"] = "$" + millify(prev_earnings[i]["revenueEstimate"], precision = 2)
-        prev_earnings[i]["revenueActual"] = "$" + millify(prev_earnings[i]["revenueActual"], precision = 2)
+        prev_earnings[i]["epsbeat"] = "{:.2%}".format(prev_earnings[i]["epsactual"]/prev_earnings[i]["epsestimate"]-1)
+        prev_earnings[i]["revenuebeat"] = "{:.2%}".format(prev_earnings[i]["revenueactual"]/prev_earnings[i]["revenueestimate"]-1)
+        prev_earnings[i]["epsactual"] = usd(prev_earnings[i]["epsactual"])
+        prev_earnings[i]["epsestimate"] = usd(prev_earnings[i]["epsestimate"] )
+        prev_earnings[i]["revenueestimate"] = "$" + millify(prev_earnings[i]["revenueestimate"], precision = 2)
+        prev_earnings[i]["revenueactual"] = "$" + millify(prev_earnings[i]["revenueactual"], precision = 2)
         if prev_earnings[i]["hour"] == "bmo":
             prev_earnings[i]["hour"] = "Pre Market"
         if prev_earnings[i]["hour"] == "amc":
             prev_earnings[i]["hour"] = "After Market"
 #same as previous earnings
-    future_earnings = db.execute("SELECT DISTINCT epsActual, epsEstimate, revenueEstimate, revenueActual, hour, date, quarter,symbol,year FROM earnings_calendar WHERE date >= :current_date AND date < :two_weeks_later AND symbol in (SELECT ticker FROM positions where user_id = :user_id GROUP BY ticker HAVING sum(quantity)<>0) AND real = :real ORDER BY date ASC", two_weeks_later = two_weeks_later, current_date = current_date, user_id = user_id, real = "true")
+    future_earnings = db.execute("SELECT DISTINCT epsactual, epsestimate, revenueestimate, revenueactual, hour, date, quarter,symbol,year FROM earnings_calendar WHERE date >= :current_date AND date < :two_weeks_later AND symbol in (SELECT ticker FROM positions where user_id = :user_id GROUP BY ticker HAVING sum(quantity)<>0) AND real = :real ORDER BY date ASC", two_weeks_later = two_weeks_later, current_date = current_date, user_id = user_id, real = "true")
     for i in range(0, len(future_earnings)):
-        future_earnings[i]["epsEstimate"] = usd(future_earnings[i]["epsEstimate"])
-        future_earnings[i]["revenueEstimate"] = "$" + millify(future_earnings[i]["revenueEstimate"], precision = 2)
+        future_earnings[i]["epsestimate"] = usd(future_earnings[i]["epsestimate"])
+        future_earnings[i]["revenueestimate"] = "$" + millify(future_earnings[i]["revenueestimate"], precision = 2)
         if future_earnings[i]["hour"] == "bmo":
             future_earnings[i]["hour"] = "Pre Market"
         if future_earnings[i]["hour"] == "amc":
