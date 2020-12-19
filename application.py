@@ -234,7 +234,7 @@ def index():
         style_list.append([style_rows[i]["style"], style_rows[i]["MarketValue"]])
 
     #select all the times of our price updates
-    time_rows = db.execute("SELECT prices.time, user_id, positions.ticker, SUM(quantity) as quantity, SUM(positions.price* quantity)/SUM(quantity) as CostBasis FROM positions join prices on prices.ticker = positions.ticker where user_id = :user_id GROUP BY user_id, positions.ticker HAVING sum(quantity)<>0 ", user_id = user_id)
+    time_rows = db.execute("SELECT prices.time, user_id, positions.ticker, SUM(quantity) as quantity, SUM(positions.price* quantity)/SUM(quantity) as CostBasis FROM positions join prices on prices.ticker = positions.ticker where user_id = :user_id GROUP BY user_id, positions.ticker, prices.time HAVING sum(quantity)<>0 ", user_id = user_id)
     time_rows_time = str(hour_min)
 
     if (len(time_rows) != 0):
