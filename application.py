@@ -972,7 +972,7 @@ def delstockcomps():
 
         db.execute("DELETE FROM comps_tickers WHERE user_id = :user_id AND ticker = :parent_ticker AND comp = :ticker", user_id = user_id, parent_ticker = parent_ticker, ticker = ticker)
 
-        comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id AND updated = :current_date", parent_ticker = parent_ticker, user_id = user_id)
+        comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id AND updated = :current_date", parent_ticker = parent_ticker, user_id = user_id, current_date = current_date)
         return render_template("comps.html", comps = comps, parent_ticker = parent_ticker,current_date = current_date)
 
 @app.route("/downloadcomps", methods=["POST"])
