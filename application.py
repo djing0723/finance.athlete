@@ -66,7 +66,7 @@ def index():
 
     #select the user and get their positions, done by accessing the SQL database
     user_id = session["user_id"]
-    rows = db.execute("SELECT user_id, ticker, SUM(quantity) as quantity, SUM(price* quantity)/SUM(quantity) as CostBasis FROM positions where user_id = :id GROUP BY user_id, ticker HAVING sum(quantity)<>0", id = session["user_id"])
+    rows = db.execute("SELECT user_id, ticker, SUM(quantity) as quantity, SUM(price* quantity)/SUM(quantity) as costbasis FROM positions where user_id = :id GROUP BY user_id, ticker HAVING sum(quantity)<>0", id = session["user_id"])
     user_cash = round(db.execute("SELECT cash FROM users WHERE id = ?", user_id)[0]["cash"],2)
 
     #create a SQL database to update stock prices 3 times a day. This way, we don't have to keep on calling the API, saving us API calls and page load time
@@ -169,10 +169,10 @@ def index():
             #add dicts to give more insight into allocation
             rows[i]["industry"] = quote["industry"]
             rows[i]["price"] = quote["price"]
-            rows[i]["CostBasis"] = rows[i]["CostBasis"]
+            rows[i]["costbasis"] = rows[i]["costbasis"]
             rows[i]["change"] = quote["change"]
             #how much an user made on average for their positions. Calcualtes based on the average cost of their stocks
-            return_number = (rows[i]["price"]/rows[i]["CostBasis"])-1
+            return_number = (rows[i]["price"]/rows[i]["costbasis"])-1
 
             #price_total is the total market value. We append this to row 2 to be used in javascript to draw the pie chart
             price_total = rows[i]["quantity"]*rows[i]["price"]
@@ -185,14 +185,14 @@ def index():
 
             #calculate total amount user has
             user_equity += price_total
-            cost_total = rows[i]["quantity"]*rows[i]["CostBasis"]
+            cost_total = rows[i]["quantity"]*rows[i]["costbasis"]
 
             #more insights calculated
             rows[i]["pctchange"] = "{:.2%}".format(float(quote["change"]))
             rows[i]["totalreturn_usd"] = usd(price_total - cost_total)
             rows[i]["total_usd"] = usd(round(rows[i]["quantity"]*rows[i]["price"],2))
             rows[i]["price_usd"] = usd(quote["price"])
-            rows[i]["CostBasis"] = usd(round(rows[i]["CostBasis"],2))
+            rows[i]["costbasis"] = usd(round(rows[i]["costbasis"],2))
 
             #each stock's return
             rows[i]["return"] = "{:.2%}".format(return_number)
@@ -227,14 +227,14 @@ def index():
         db.execute("UPDATE performance SET portfolio = :total WHERE user_id = :id AND date = :current_date", total = total, id = user_id, current_date = current_date)
 
     #query the total amount per style
-    style_rows = db.execute("SELECT style, sum(MarketValue) as MarketValue from (SELECT prices.price * sum(quantity) as MarketValue, lower(trim(style)) as style, user_id, positions.ticker, SUM(quantity) as quantity, SUM(positions.price* quantity)/SUM(quantity) as CostBasis FROM positions join prices on prices.ticker = positions.ticker where user_id = :user_id GROUP BY user_id, style, positions.ticker, prices.price HAVING sum(quantity)<>0) AS total_positions group by style", user_id = user_id)
+    style_rows = db.execute("SELECT style, sum(marketvalue) as marketvalue from (SELECT prices.price * sum(quantity) as marketvalue, lower(trim(style)) as style, user_id, positions.ticker, SUM(quantity) as quantity, SUM(positions.price* quantity)/SUM(quantity) as costbasis FROM positions join prices on prices.ticker = positions.ticker where user_id = :user_id GROUP BY user_id, style, positions.ticker, prices.price HAVING sum(quantity)<>0) AS total_positions group by style", user_id = user_id)
 
     #append the styles and amount, we can now graph this in index
     for i in range(0, len(style_rows)):
-        style_list.append([style_rows[i]["style"], style_rows[i]["MarketValue"]])
+        style_list.append([style_rows[i]["style"], style_rows[i]["marketvalue"]])
 
     #select all the times of our price updates
-    time_rows = db.execute("SELECT prices.time, user_id, positions.ticker, SUM(quantity) as quantity, SUM(positions.price* quantity)/SUM(quantity) as CostBasis FROM positions join prices on prices.ticker = positions.ticker where user_id = :user_id GROUP BY user_id, positions.ticker, prices.time HAVING sum(quantity)<>0 ", user_id = user_id)
+    time_rows = db.execute("SELECT prices.time, user_id, positions.ticker, SUM(quantity) as quantity, SUM(positions.price* quantity)/SUM(quantity) as costbasis FROM positions join prices on prices.ticker = positions.ticker where user_id = :user_id GROUP BY user_id, positions.ticker, prices.time HAVING sum(quantity)<>0 ", user_id = user_id)
     time_rows_time = str(hour_min)
 
     if (len(time_rows) != 0):
@@ -736,7 +736,7 @@ def earnings_calendar():
    #calendar = []
     #calendar.clear()
     user_id = session["user_id"]
-    rows = db.execute("SELECT user_id, ticker, SUM(quantity) as quantity, SUM(price* quantity)/SUM(quantity) as CostBasis FROM positions where user_id = :id GROUP BY user_id, ticker HAVING sum(quantity)<>0", id = session["user_id"])
+    rows = db.execute("SELECT user_id, ticker, SUM(quantity) as quantity, SUM(price* quantity)/SUM(quantity) as costbasis FROM positions where user_id = :id GROUP BY user_id, ticker HAVING sum(quantity)<>0", id = session["user_id"])
     #calculate two weeks ago and two weeks later. will be the timeframe of our relevant earnings
     two_weeks_ago = (date.today() + relativedelta(weeks = -2)).strftime("%Y-%m-%d")
     two_weeks_later = (date.today() + relativedelta(weeks = 2)).strftime("%Y-%m-%d")
@@ -906,7 +906,7 @@ def comps():
                     db.execute("INSERT INTO comps_tickers (user_id, ticker, comp) VALUES (?,?,?)", user_id, ticker, comp)
                     existing_comps_table = db.execute("SELECT * FROM company_financials WHERE ticker = :ticker AND updated = :updated", ticker = comp, updated = current_date)
                     if len(existing_comps_table) == 0:
-                        db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roeTTM, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", comp, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roeTTM"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"])
+                        db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roettm, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", comp, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roettm"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"])
 
 
         for i in range(0, len(existing_comps)):
@@ -918,7 +918,7 @@ def comps():
                 updated = current_date
 
                 if len(comp_financials) != 0:
-                    db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roeTTM, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", comp_ticker, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roeTTM"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"])
+                    db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roettm, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", comp_ticker, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roettm"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"])
 
         comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :ticker AND comps_tickers.user_id = :user_id AND updated = :current_date", ticker = ticker, user_id = user_id, current_date = current_date)
         return render_template("comps.html", comps = comps, parent_ticker = ticker)
@@ -952,7 +952,7 @@ def addstockcomps():
             comp_financials = financials_update(ticker)
             updated = current_date
 
-            db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roeTTM, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", ticker, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roeTTM"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"])
+            db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roettm, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", ticker, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roettm"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"])
 
         comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id AND updated = :current_date", parent_ticker = parent_ticker, user_id = user_id,current_date = current_date)
         return render_template("comps.html", comps = comps, parent_ticker = parent_ticker)
@@ -984,7 +984,7 @@ def downloadcomps():
     if request.method == "POST":
         parent_ticker = request.form.get("parent_ticker").strip().upper()
 
-        comps_dl = db.execute("SELECT comps_tickers.comp, company_financials.marketcap, company_financials.ev, company_financials.evsales, company_financials.evebitda, company_financials.revgrowththree, company_financials.revgrowthttm, company_financials.epsgrowththree, company_financials.operatingmarginttm, company_financials.netmargin, company_financials.roeTTM, company_financials.roi FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker  WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id", parent_ticker = parent_ticker, user_id = user_id)
+        comps_dl = db.execute("SELECT comps_tickers.comp, company_financials.marketcap, company_financials.ev, company_financials.evsales, company_financials.evebitda, company_financials.revgrowththree, company_financials.revgrowthttm, company_financials.epsgrowththree, company_financials.operatingmarginttm, company_financials.netmargin, company_financials.roettm, company_financials.roi FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker  WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id", parent_ticker = parent_ticker, user_id = user_id)
         comps_dl_keys =  comps_dl[0].keys()
 
         comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id", parent_ticker = parent_ticker, user_id = user_id)

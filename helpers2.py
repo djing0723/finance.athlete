@@ -126,7 +126,7 @@ def financials_update(ticker):
 
     #financials["roeTTM"] = 0
     #if (ct_fh_financials1["roeTTM"] is not None):
-    financials['roeTTM'] = ct_fh_financials1["roeTTM"]
+    financials['roettm'] = ct_fh_financials1["roeTTM"]
 
     #financials["debttoequity"] = 0
     #if (ct_fh_financials1["totalDebt/totalEquityQuarterly"] is not None):
