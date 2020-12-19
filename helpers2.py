@@ -31,11 +31,12 @@ def prices_update(ticker):
     hour_min = int(str(current_time.hour) + current_minute)
 
     #what do we have prices for
-    price_rows_tickers = db.execute("SELECT DISTINCT lower(trim(ticker)) FROM prices")
+    price_rows_tickers = db.execute("SELECT DISTINCT lower(trim(ticker)) as ticker FROM prices")
     price_row_tickers_values = []
     price_row_tickers_values.clear()
-    for price in price_rows_tickers:
-        price_row_tickers_values.append(price["lower(trim(ticker))"])
+    if len(price_rows_tickers)>0:
+        for price in price_rows_tickers:
+            price_row_tickers_values.append(price["ticker"])
 
     #if it's not in there, call IEX to get a quote and insert
     if ticker.lower().strip() not in price_row_tickers_values:
