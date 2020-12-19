@@ -43,7 +43,7 @@ def prices_update(ticker):
         quote = lookup(ticker)
         profile = company_profile(ticker)
         industry = ""
-        if len(profile)>0:
+        if profile is not None:
             industry = profile["industry"]
         else:
             industry = "misc."
@@ -61,7 +61,7 @@ def prices_update(ticker):
         if quote["change"] is not None:
             change = float(quote["change"])
         profile = company_profile(ticker)
-        if len(profile)>0:
+        if profile is not None:
             industry = profile["industry"]
         else:
             industry = "misc."
