@@ -72,7 +72,7 @@ def index():
     #create a SQL database to update stock prices 3 times a day. This way, we don't have to keep on calling the API, saving us API calls and page load time
 
     #get the date to track what date and what time stock prices have been updated.
-    current_date = date.today().date()
+    current_date = datetime.now(pytz.timezone('US/Eastern')).date()
     current_time = datetime.now(pytz.timezone("America/New_York"))
     current_minute = str(current_time.minute)
     hour_min = int(str(current_time.hour) + current_minute)
@@ -728,7 +728,7 @@ def register():
 @login_required
 def earnings_calendar():
 
-    current_date = date.today().date()
+    current_date = datetime.now(pytz.timezone('US/Eastern')).date()
     current_time = datetime.now(pytz.timezone("America/New_York"))
     current_minute = str(current_time.minute)
     hour_min = int(str(current_time.hour) + current_minute)
@@ -874,7 +874,7 @@ def documentation():
 @login_required
 def comps():
 
-    current_date = date.today().date()
+    current_date = datetime.now(pytz.timezone('US/Eastern')).date()
     current_time = datetime.now(pytz.timezone("America/New_York"))
     current_minute = str(current_time.minute)
     hour_min = int(str(current_time.hour) + current_minute)
@@ -926,7 +926,7 @@ def comps():
 @app.route("/addstockcomps", methods=["GET", "POST"])
 @login_required
 def addstockcomps():
-    current_date = date.today().date()
+    current_date = datetime.now(pytz.timezone('US/Eastern')).date()
     user_id = session["user_id"]
 
     if request.method == "GET":
@@ -960,7 +960,7 @@ def addstockcomps():
 @app.route("/delstockcomps", methods=["POST"])
 @login_required
 def delstockcomps():
-    current_date = date.today().date()
+    current_date = datetime.now(pytz.timezone('US/Eastern')).date()
     user_id = session["user_id"]
 
     if request.method == "POST":
@@ -978,7 +978,7 @@ def delstockcomps():
 @app.route("/downloadcomps", methods=["POST"])
 @login_required
 def downloadcomps():
-    current_date = date.today().date()
+    current_date = datetime.now(pytz.timezone('US/Eastern')).date()
     user_id = session["user_id"]
 
     if request.method == "POST":
