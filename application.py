@@ -893,6 +893,8 @@ def comps():
             return apology("Unsupported Ticker", 400)
         if financials1 is None:
             return apology("Unsupported Ticker", 400)
+        if len(financials1) == 0:
+            return apology("Unsupported Ticker", 400)
 
         existing_comps = db.execute("SELECT * FROM comps_tickers WHERE user_id = :user_id AND ticker = :ticker", user_id = user_id, ticker = ticker)
 
