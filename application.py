@@ -984,7 +984,7 @@ def downloadcomps():
     if request.method == "POST":
         parent_ticker = request.form.get("parent_ticker").strip().upper()
 
-        comps_dl = db.execute("SELECT comps_tickers.comp, company_financials.marketcap, company_financials.ev, company_financials.evsales, company_financials.evebitda, company_financials.revgrowththree, company_financials.revgrowthttm, company_financials.epsgrowththree, company_financials.operatingmarginttm, company_financials.netmargin, company_financials.roettm, company_financials.roi FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker  WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id", parent_ticker = parent_ticker, user_id = user_id)
+        comps_dl = db.execute("SELECT comps_tickers.comp, company_financials.marketcap, company_financials.ev, company_financials.evsales, company_financials.evebitda, company_financials.revgrowththree, company_financials.revgrowthttm, company_financials.epsgrowththree, company_financials.operatingmarginttm, company_financials.netmargin, company_financials.roettm, company_financials.roi, company_financials.debtequity FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker  WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id", parent_ticker = parent_ticker, user_id = user_id)
         comps_dl_keys =  comps_dl[0].keys()
 
         comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id", parent_ticker = parent_ticker, user_id = user_id)
