@@ -751,9 +751,9 @@ def earnings_calendar():
             if (len(ec1) != 0):
                 ec = ec1[0]
                 if (ec["date"] >= two_weeks_ago and ec["date"] <= two_weeks_later):
-                    db.execute("INSERT INTO earnings_calendar (date, epsactual, epsestimate, hour, quarter, revenueactual, revenueestimate, symbol, year, date_updated, real) VALUES(?,?,?,?,?,?,?,?,?,?,?)", ec["date"], ec["epsactual"], ec["epsestimate"], ec["hour"], ec["quarter"], ec["revenueactual"], ec["revenueestimate"], ec["symbol"], ec["year"], current_date, "true")
+                    db.execute("INSERT INTO earnings_calendar (date, epsactual, epsestimate, hour, quarter, revenueactual, revenueestimate, symbol, year, date_updated, real) VALUES(?,?,?,?,?,?,?,?,?,?,?)", ec["date"], ec["epsActual"], ec["epsEstimate"], ec["hour"], ec["quarter"], ec["revenueActual"], ec["revenueEstimate"], ec["symbol"], ec["year"], current_date, "true")
                 else:
-                    db.execute("INSERT INTO earnings_calendar (date, epsactual, epsestimate, hour, quarter, revenueactual, revenueestimate, symbol, year, date_updated, real) VALUES(?,?,?,?,?,?,?,?,?,?,?)", current_date, 0, 0, 0, 0,0, 0, rows[i]["ticker"], 0, current_date, "false")
+                    db.execute("INSERT INTO earnings_calendar (date, epsActual, epsEstimate, hour, quarter, revenueActual, revenueEstimate, symbol, year, date_updated, real) VALUES(?,?,?,?,?,?,?,?,?,?,?)", current_date, 0, 0, 0, 0,0, 0, rows[i]["ticker"], 0, current_date, "false")
 
                 #db.execute("SELECT * FROM earnings_calendar WHERE symbol = :symbol AND date_updated = :date_updated", symbol = rows[i]["ticker"], date_updated = current_date
     prev_earnings = db.execute("SELECT DISTINCT epsactual, epsestimate, revenueestimate, revenueactual, hour, date, quarter,symbol,year FROM earnings_calendar WHERE date >= :date_two_weeks_ago AND date < :current_date AND symbol in (SELECT ticker FROM positions where user_id = :user_id GROUP BY ticker HAVING sum(quantity)<>0) AND real = :real ORDER BY date DESC", date_two_weeks_ago = two_weeks_ago, current_date = current_date, user_id = user_id, real = "true")
