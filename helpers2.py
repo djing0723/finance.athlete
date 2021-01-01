@@ -10,7 +10,7 @@ from dateutil.relativedelta import relativedelta
 from helpers import timecheck, lookup, company_profile
 import pytz
 import finnhub
-import psycopg2
+#import psycopg2
 
 
 #db = SQL("sqlite:///finance.db")
@@ -111,6 +111,8 @@ def financials_update(ticker):
    #financials["revgrowththree"] = 0
     #if (ct_fh_financials1["revenueGrowth3Y"] is not None):
     financials['revgrowththree'] = ct_fh_financials1["revenueGrowth3Y"]
+
+    financials['peratio'] = ct_fh_financials1["peNormalizedAnnual"]
 
     #financials["revgrowthttm"] = 0
    # if (ct_fh_financials1["revenueGrowthTTMYoy"] is not None):

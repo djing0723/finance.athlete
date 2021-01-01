@@ -1,6 +1,6 @@
 import os
 
-import psycopg2
+#import psycopg2
 from cs50 import SQL
 import sqlite3
 import finnhub
@@ -908,7 +908,7 @@ def comps():
                     db.execute("INSERT INTO comps_tickers (user_id, ticker, comp) VALUES (?,?,?)", user_id, ticker, comp)
                     existing_comps_table = db.execute("SELECT * FROM company_financials WHERE ticker = :ticker AND updated = :updated", ticker = comp, updated = current_date)
                     if len(existing_comps_table) == 0:
-                        db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roettm, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", comp, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roettm"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"])
+                        db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roettm, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta, peratio) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", comp, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roettm"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"], comp_financials["peratio"])
 
 
         for i in range(0, len(existing_comps)):
@@ -920,7 +920,7 @@ def comps():
                 updated = current_date
 
                 if len(comp_financials) != 0:
-                    db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roettm, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", comp_ticker, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roettm"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"])
+                    db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roettm, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta, peratio) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", comp_ticker, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roettm"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"], comp_financials["peratio"])
 
         comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :ticker AND comps_tickers.user_id = :user_id AND updated = :current_date", ticker = ticker, user_id = user_id, current_date = current_date)
         return render_template("comps.html", comps = comps, parent_ticker = ticker)
@@ -954,7 +954,7 @@ def addstockcomps():
             comp_financials = financials_update(ticker)
             updated = current_date
 
-            db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roettm, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", ticker, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roettm"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"])
+            db.execute("INSERT INTO company_financials (ticker, evsales, evebitda, revgrowththree, revgrowthttm, epsgrowththree, operatingmarginttm, roettm, debtequity, roi, netmargin, marketcap, netdebt, shares, updated, ev, beta, peratio) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", ticker, comp_financials["evsales"], comp_financials["evebitda"], comp_financials["revgrowththree"], comp_financials["revgrowthttm"], comp_financials["epsgrowththree"], comp_financials["operatingmarginttm"],comp_financials["roettm"], comp_financials["debttoequity"],comp_financials["roi"],comp_financials["netmargin"], comp_financials["marketcap"], comp_financials["netdebt"], comp_financials["shares"], current_date, comp_financials["ev"], comp_financials["beta"], comp_financials["peratio"])
 
         comps = db.execute("SELECT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id AND updated = :current_date", parent_ticker = parent_ticker, user_id = user_id,current_date = current_date)
         return render_template("comps.html", comps = comps, parent_ticker = parent_ticker)
@@ -986,7 +986,7 @@ def downloadcomps():
     if request.method == "POST":
         parent_ticker = request.form.get("parent_ticker").strip().upper()
 
-        comps_dl = db.execute("SELECT comps_tickers.comp, company_financials.marketcap, company_financials.ev, company_financials.evsales, company_financials.evebitda, company_financials.revgrowththree, company_financials.revgrowthttm, company_financials.epsgrowththree, company_financials.operatingmarginttm, company_financials.netmargin, company_financials.roettm, company_financials.roi, company_financials.debtequity FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker  WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id AND updated = :current_date",current_date = current_date, parent_ticker = parent_ticker, user_id = user_id)
+        comps_dl = db.execute("SELECT comps_tickers.comp, company_financials.marketcap, company_financials.ev, company_financials.evsales, company_financials.evebitda, company_financials.peratio, company_financials.revgrowththree, company_financials.revgrowthttm, company_financials.epsgrowththree, company_financials.operatingmarginttm, company_financials.netmargin, company_financials.roettm, company_financials.roi, company_financials.debtequity FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker  WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id AND updated = :current_date",current_date = current_date, parent_ticker = parent_ticker, user_id = user_id)
         comps_dl_keys =  comps_dl[0].keys()
 
         comps = db.execute("SELECT DISTINCT * FROM comps_tickers JOIN company_financials ON comps_tickers.comp = company_financials.ticker WHERE comps_tickers.ticker = :parent_ticker AND comps_tickers.user_id = :user_id AND updated = :current_date", parent_ticker = parent_ticker, user_id = user_id, current_date = current_date)

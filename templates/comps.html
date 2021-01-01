@@ -68,6 +68,7 @@ function showPage() {
             <th>Enterprise Value</th>
             <th>EV/Sales</th>
             <th>EV/EBITDA</th>
+            <th>PE Ratio</th>
             <th>Rev Growth (3y)</th>
             <th>Rev Growth (TTM)</th>
             <th>EPS Growth (3y)</th>
@@ -100,7 +101,10 @@ function showPage() {
             <td>{{comp.ev|round(1, 'common')}}</td>
             <td>{{comp.evsales|round(1, 'common')}}</td>
             <td>{{comp.evebitda|round(1, 'common')}}</td>
-            <td>{% if comp.revgrowththree is not none %}
+            <td>{% if comp.peratio is not none %}
+                {{comp.peratio|round(1, 'common')}}
+                {% else %}
+                {% endif %}</td>            <td>{% if comp.revgrowththree is not none %}
                 {{comp.revgrowththree|round(1, 'common')}}%
                 {% else %}
                 {% endif %}</td>
