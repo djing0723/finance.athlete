@@ -49,6 +49,7 @@ function showPage() {
             <th>Price</th>
             <th>Transaction</th>
             <th>Style</th>
+            <th>Cash Inflow/Outflow</th>
         </tr>
     </thead>
     <tbody>
@@ -65,6 +66,7 @@ function showPage() {
             <td>{{row.price}}</td>
             <td>{{row.action}}</td>
             <td>{{row.style}}</td>
+            <td>{{row.cash_inout}}</td>
         </tr>
         {% endfor %}
     </tbody>

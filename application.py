@@ -148,6 +148,10 @@ def index():
     style_list.clear()
     style_list.append(["Style", "Amount"])
 
+    country_list = []
+    country_list.clear()
+    country_list.append(["Country", "Amount"])
+
     #loop through user positions and add relevant lists
     if len(rows)!=0:
         user_equity = 0
@@ -233,6 +237,11 @@ def index():
     for i in range(0, len(style_rows)):
         style_list.append([style_rows[i]["style"], style_rows[i]["marketvalue"]])
 
+    country_rows = db.execute("SELECT country, sum(marketvalue) as marketvalue from (SELECT prices.price * sum(quantity) as marketvalue, country, user_id, positions.ticker, SUM(quantity) as quantity, SUM(positions.price* quantity)/SUM(quantity) as costbasis FROM positions join prices on prices.ticker = positions.ticker where user_id = :user_id GROUP BY user_id, country, positions.ticker, prices.price HAVING sum(quantity)<>0) AS total_positions group by country", user_id = user_id)
+    for i in range(0, len(country_rows)):
+        if country_rows is not None:
+            country_list.append([country_rows[i]["country"], country_rows[i]["marketvalue"]])
+
     #select all the times of our price updates
     time_rows = db.execute("SELECT prices.time, user_id, positions.ticker, SUM(quantity) as quantity, SUM(positions.price* quantity)/SUM(quantity) as costbasis FROM positions join prices on prices.ticker = positions.ticker where user_id = :user_id GROUP BY user_id, positions.ticker, prices.time HAVING sum(quantity)<>0 ", user_id = user_id)
     time_rows_time = str(hour_min)
@@ -307,7 +316,7 @@ def index():
     #print("EARNS: ", future_earnings);
     #print("Prev: ", prev_earnings);"""
     print(financials_update("WORK"))
-    return render_template("index.html", rows = rows, rows2 = rows2, rows3 = rows3, user_cash = usd(user_cash), user_equity = usd(user_equity), total = usd(total), overall_pct = overall_pct_string, spy_pct_string = spy_pct_string, qqq_pct_string = qqq_pct_string, time_to_display= time_to_display, style_list = style_list)
+    return render_template("index.html", rows = rows, rows2 = rows2, rows3 = rows3, user_cash = usd(user_cash), user_equity = usd(user_equity), total = usd(total), overall_pct = overall_pct_string, spy_pct_string = spy_pct_string, qqq_pct_string = qqq_pct_string, time_to_display= time_to_display, style_list = style_list, country_list = country_list)
 
 @app.route("/watchlist", methods = ["GET", "POST"])
 @login_required

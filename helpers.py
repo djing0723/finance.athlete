@@ -160,6 +160,7 @@ def company_profile(symbol):
         return {
             "name": profile["ticker"],
             "industry": profile["finnhubIndustry"],
+            "country": profile["country"],
             "exchange": profile["exchange"],
             "url": profile["weburl"],
             "logo": profile["logo"]

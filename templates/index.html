@@ -154,6 +154,11 @@ Positions
       <h2 style = "margin-top: 30px;">Breakdown by Style</h2>
       <div id="piechart_style" class="index_piechart"></div>
     </div>
+
+    <div class="card card-info" style = "text-align: center;">
+      <h2 style = "margin-top: 30px;">Breakdown by Country</h2>
+      <div id="piechart_country" class="index_piechart"></div>
+    </div>
     <!-- Card End-->
     <!-- Card -->
 
@@ -269,9 +274,45 @@ Positions
           sliceVisibilityThreshold: 0
         };
 
-
-
         var chart = new google.visualization.PieChart(document.getElementById('piechart_style'));
+
+        chart.draw(dataVis, options);
+      }
+  </script>
+    <script>
+    google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+
+        result = {{country_list|tojson}};
+
+        var dataVis = google.visualization.arrayToDataTable(result);
+
+        document.getElementById('piechart_style').innerHTML = dataVis;
+
+        var options =
+          {
+          title: 'Portfolio Breakdown By Country',
+          colors: ['#1cbec7', '#2013d6', '#790be0'],
+          pieHole: .4,
+          backgroundColor: 'transparent',
+          legendTextStyle: {color: 'white'},
+          legend: {position: 'labeled'},
+          pieSliceTextStyle: {
+          color: 'white',
+          fontSize:13
+          },
+                    chartArea: {left: 0, top: 0, width: "100%", height: "100%"},
+          width: 800,
+          height: 500,
+          titleTextStyle: {color: 'white'},
+          sliceVisibilityThreshold: 0
+        };
+
+
+
+        var chart = new google.visualization.PieChart(document.getElementById('piechart_country'));
 
         chart.draw(dataVis, options);
       }

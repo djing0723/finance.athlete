@@ -46,13 +46,15 @@ def prices_update(ticker):
         industry = ""
         if profile is not None:
             industry = profile["industry"]
+            country = profile["country"]
         else:
             industry = "misc."
+            country = "misc."
         price = quote["price"]
         change = 0
         if quote["change"] is not None:
             change = float(quote["change"])
-        db.execute("INSERT INTO prices (date, time, ticker, price, industry, change) VALUES(?,?,?,?, ?, ?)",  current_date, hour_min, ticker, price, industry, change)
+        db.execute("INSERT INTO prices (date, time, ticker, price, industry, change, country) VALUES(?,?,?,?, ?, ?,?)",  current_date, hour_min, ticker, price, industry, change, country)
 
     #else, update it through here
     else:
@@ -64,9 +66,11 @@ def prices_update(ticker):
         profile = company_profile(ticker)
         if profile is not None:
             industry = profile["industry"]
+            country = profile["country"]
         else:
             industry = "misc."
-        db.execute("UPDATE prices SET date = :date, time = :time, price = :price, industry = :industry, change = :change WHERE ticker = :ticker", date = current_date, time = hour_min, price = price, industry = industry, change = change, ticker = ticker)
+            country = "misc."
+        db.execute("UPDATE prices SET date = :date, time = :time, price = :price, industry = :industry, change = :change, country = :country WHERE ticker = :ticker", date = current_date, time = hour_min, price = price, industry = industry, change = change, ticker = ticker, country = country)
 
 finnhub_client = finnhub.Client(api_key = "bvbb94v48v6q7r401fn0")
 
