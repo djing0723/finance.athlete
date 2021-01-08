@@ -64,6 +64,8 @@ finnhub_client = finnhub.Client(api_key="bv77j6f48v6qefljqrr0")
 @login_required
 def index():
 
+    weekno = datetime.datetime.today().weekday()
+
     #select the user and get their positions, done by accessing the SQL database
     user_id = session["user_id"]
     rows = db.execute("SELECT user_id, ticker, SUM(quantity) as quantity, SUM(price* quantity)/SUM(quantity) as costbasis FROM positions where user_id = :id GROUP BY user_id, ticker HAVING sum(quantity)<>0", id = session["user_id"])
@@ -226,7 +228,8 @@ def index():
         overall_pct_string = "0%"
 
     if len(db.execute("SELECT * FROM performance WHERE user_id = :user_id AND date = :current_date", user_id = user_id, current_date= current_date)) == 0:
-        db.execute("INSERT INTO performance (user_id, portfolio, date) VALUES(?,?,?)", user_id, total, current_date)
+        if weekno < 5:
+            db.execute("INSERT INTO performance (user_id, portfolio, date) VALUES(?,?,?)", user_id, total, current_date)
     else:
         db.execute("UPDATE performance SET portfolio = :total WHERE user_id = :id AND date = :current_date", total = total, id = user_id, current_date = current_date)
 
