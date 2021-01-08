@@ -250,6 +250,7 @@ Positions
       function drawChart() {
 
         result = {{style_list|tojson}};
+        console.log(result);
 
         var dataVis = google.visualization.arrayToDataTable(result);
 
@@ -289,7 +290,7 @@ Positions
 
         var dataVis = google.visualization.arrayToDataTable(result);
 
-        document.getElementById('piechart_style').innerHTML = dataVis;
+        document.getElementById('piechart_country').innerHTML = dataVis;
 
         var options =
           {
