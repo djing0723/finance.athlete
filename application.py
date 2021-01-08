@@ -64,7 +64,7 @@ finnhub_client = finnhub.Client(api_key="bv77j6f48v6qefljqrr0")
 @login_required
 def index():
 
-    weekno = datetime.datetime.today().weekday()
+    weekno = datetime.today().weekday()
 
     #select the user and get their positions, done by accessing the SQL database
     user_id = session["user_id"]
