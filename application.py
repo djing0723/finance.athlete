@@ -791,7 +791,8 @@ def earnings_calendar():
 #same as previous earnings
     future_earnings = db.execute("SELECT DISTINCT epsactual, epsestimate, revenueestimate, revenueactual, hour, date, quarter,symbol,year FROM earnings_calendar WHERE date >= :current_date AND date < :two_weeks_later AND symbol in (SELECT ticker FROM positions where user_id = :user_id GROUP BY ticker HAVING sum(quantity)<>0) AND real = :real ORDER BY date ASC", two_weeks_later = two_weeks_later, current_date = current_date, user_id = user_id, real = "true")
     for i in range(0, len(future_earnings)):
-        future_earnings[i]["epsestimate"] = usd(future_earnings[i]["epsestimate"])
+        if future_earnings[i]["epsestimate"] != 0 and future_earnings[i]["epsestimate"] is not None:
+            future_earnings[i]["epsestimate"] = usd(future_earnings[i]["epsestimate"])
         if future_earnings[i]["revenueestimate"] != 0 and future_earnings[i]["revenueestimate"] is not None:
             future_earnings[i]["revenueestimate"] = "$" + millify(future_earnings[i]["revenueestimate"], precision = 2)
         if future_earnings[i]["hour"] == "bmo":
