@@ -780,8 +780,10 @@ def earnings_calendar():
             prev_earnings[i]["epsbeat"] = 0
         prev_earnings[i]["epsactual"] = usd(prev_earnings[i]["epsactual"])
         prev_earnings[i]["epsestimate"] = usd(prev_earnings[i]["epsestimate"] )
-        prev_earnings[i]["revenueestimate"] = "$" + millify(prev_earnings[i]["revenueestimate"], precision = 2)
-        prev_earnings[i]["revenueactual"] = "$" + millify(prev_earnings[i]["revenueactual"], precision = 2)
+        if prev_earnings[i]["revenueestimate"] != 0 and is not None:
+            prev_earnings[i]["revenueestimate"] = "$" + millify(prev_earnings[i]["revenueestimate"], precision = 2)
+        if prev_earnings[i]["revenueactual"] != 0 and is not None:
+            prev_earnings[i]["revenueactual"] = "$" + millify(prev_earnings[i]["revenueactual"], precision = 2)
         if prev_earnings[i]["hour"] == "bmo":
             prev_earnings[i]["hour"] = "Pre Market"
         if prev_earnings[i]["hour"] == "amc":
