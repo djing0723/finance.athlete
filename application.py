@@ -20,6 +20,11 @@ from millify import millify
 import csv
 
 # Configure application
+
+#pip install finnhub-python
+#git config --global user.name djing0723
+#git config --global user.email "darius.jing@yale.edu"
+#pip install psycopg2-binary
 app = Flask(__name__)
 
 # Ensure templates are auto-reloaded
@@ -567,7 +572,7 @@ def tradelog():
     #get the user ID. if method is get, show all trades
     user_id = session["user_id"]
     if request.method == "GET":
-        rows = db.execute("SELECT * FROM positions WHERE user_id = :id", id = session["user_id"])
+        rows = db.execute("SELECT * FROM positions WHERE user_id = :id ORDER BY date DESC", id = session["user_id"])
         return render_template("tradelog.html", rows = reversed(rows))
         return apology("TODO")
 
