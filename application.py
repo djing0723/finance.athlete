@@ -775,11 +775,11 @@ def earnings_calendar():
                 #db.execute("SELECT * FROM earnings_calendar WHERE symbol = :symbol AND date_updated = :date_updated", symbol = rows[i]["ticker"], date_updated = current_date
     prev_earnings = db.execute("SELECT DISTINCT epsactual, epsestimate, revenueestimate, revenueactual, hour, date, quarter,symbol,year FROM earnings_calendar WHERE date >= :date_two_weeks_ago AND date < :current_date AND symbol in (SELECT ticker FROM positions where user_id = :user_id GROUP BY ticker HAVING sum(quantity)<>0) AND real = :real ORDER BY date DESC", date_two_weeks_ago = two_weeks_ago, current_date = current_date, user_id = user_id, real = "true")
     for i in range(0, len(prev_earnings)):
-        if prev_earnings[i]["epsestimate"] != 0:
+        if prev_earnings[i]["epsestimate"] != 0 and is not None:
             prev_earnings[i]["epsbeat"] = "{:.2%}".format(prev_earnings[i]["epsactual"]/prev_earnings[i]["epsestimate"]-1)
         else:
             prev_earnings[i]["epsbeat"] = 0
-        if prev_earnings[i]["revenueestimate"] != 0:
+        if prev_earnings[i]["revenueestimate"] != 0 and is not None:
             prev_earnings[i]["revenuebeat"] = "{:.2%}".format(prev_earnings[i]["revenueactual"]/prev_earnings[i]["revenueestimate"]-1)
         else:
             prev_earnings[i]["epsbeat"] = 0
