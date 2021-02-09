@@ -787,7 +787,10 @@ def earnings_calendar():
             prev_earnings[i]["epsactual"] = usd(prev_earnings[i]["epsactual"])
         else:
             prev_earnings[i]["epsactual"] = 0
-        prev_earnings[i]["epsestimate"] = usd(prev_earnings[i]["epsestimate"] )
+        if prev_earnings[i]["epsestimate"] is not None:
+            prev_earnings[i]["epsestimate"] = usd(prev_earnings[i]["epsestimate"] )
+        else:
+            prev_earnings[i]["epsestimate"] = 0
         if prev_earnings[i]["revenueestimate"] != 0 and prev_earnings[i]["revenueestimate"] is not None:
             prev_earnings[i]["revenueestimate"] = "$" + millify(prev_earnings[i]["revenueestimate"], precision = 2)
         if prev_earnings[i]["revenueactual"] != 0 and prev_earnings[i]["revenueactual"] is not None:
