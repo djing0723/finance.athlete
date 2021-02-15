@@ -194,39 +194,39 @@ function showPage() {
         <!--Price target -->
 
         {% if target_price is not none %}
-        <div class="card card-info">
-            <h3 class="card-title">Analyst Price Targets</h3>
-            <div class="row">
-                <div class="col-md-6">
-                    <div>
-                        <span class="item-key">Last Updated</span>
-                        <span class="far-left">{{target_price.lastUpdated}}<span>
-                    </div>
-                    <div>
-                        <span class="item-key">Symbol</span>
-                        <span class="far-left">{{target_price.symbol}}</span>
-                    </div>
-                    <div>
-                         <span class="item-key">Median of all Analysts' Targets</span>
-                         <span class="far-left">${{target_price.targetMedian}}<span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div>
-                        <span class="item-key">Lowest Analysts' Target</span>
-                        <span class="far-left">${{target_price.targetLow}}<span>
-                    </div>
-                    <div>
-                        <span class="item-key">Mean of Targets</span>
-                        <span class="far-left">${{target_price.targetMean}}<span>
-                    </div>
-                    <div>
-                        <span class="item-key">Highest Analsyts' Targets</span>
-                        <span class="far-left">${{target_price.targetHigh}}<span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!--<div class="card card-info">-->
+        <!--    <h3 class="card-title">Analyst Price Targets</h3>-->
+        <!--    <div class="row">-->
+        <!--        <div class="col-md-6">-->
+        <!--            <div>-->
+        <!--                <span class="item-key">Last Updated</span>-->
+        <!--                <span class="far-left">{{target_price.lastUpdated}}<span>-->
+        <!--            </div>-->
+        <!--            <div>-->
+        <!--                <span class="item-key">Symbol</span>-->
+        <!--                <span class="far-left">{{target_price.symbol}}</span>-->
+        <!--            </div>-->
+        <!--            <div>-->
+        <!--                 <span class="item-key">Median of all Analysts' Targets</span>-->
+        <!--                 <span class="far-left">${{target_price.targetMedian}}<span>-->
+        <!--            </div>-->
+        <!--        </div>-->
+        <!--        <div class="col-md-6">-->
+        <!--            <div>-->
+        <!--                <span class="item-key">Lowest Analysts' Target</span>-->
+        <!--                <span class="far-left">${{target_price.targetLow}}<span>-->
+        <!--            </div>-->
+        <!--            <div>-->
+        <!--                <span class="item-key">Mean of Targets</span>-->
+        <!--                <span class="far-left">${{target_price.targetMean}}<span>-->
+        <!--            </div>-->
+        <!--            <div>-->
+        <!--                <span class="item-key">Highest Analsyts' Targets</span>-->
+        <!--                <span class="far-left">${{target_price.targetHigh}}<span>-->
+        <!--            </div>-->
+        <!--        </div>-->
+        <!--    </div>-->
+        <!--</div>-->
         {% else %}
         {% endif %}
 

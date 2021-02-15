@@ -847,7 +847,7 @@ def stock():
 
         #get some information about the stocks
         financials = finnhub_client.company_basic_financials(ticker, 'all')['metric']
-        target_price = finnhub_client.price_target(ticker)
+        #target_price = finnhub_client.price_target(ticker)
         comps = finnhub_client.company_peers(ticker)
         quote = finnhub_client.quote(ticker)
         #print(financials)
@@ -870,7 +870,7 @@ def stock():
             # Basic Financials
             financials = finnhub_client.company_basic_financials(ticker, 'all')['metric']
             # Target
-            target_price = finnhub_client.price_target(ticker)
+            #target_price = finnhub_client.price_target(ticker)
             #print(target_price)
             # Convert financials to
             str_financials = {
@@ -884,7 +884,7 @@ def stock():
             quote = []
             quote.clear()
 
-        return render_template("stock.html", ticker = ticker.upper(), url_passin = url_passin,method = method, news = news, industry = industry, url = url, sa_url_passin=sa_url_passin, ms_url_passin = ms_url_passin, wsj_url_passin = wsj_url_passin, profile=profile, quote=quote, financials = financials, target_price = target_price, comps = comps)
+        return render_template("stock.html", ticker = ticker.upper(), url_passin = url_passin,method = method, news = news, industry = industry, url = url, sa_url_passin=sa_url_passin, ms_url_passin = ms_url_passin, wsj_url_passin = wsj_url_passin, profile=profile, quote=quote, financials = financials, comps = comps)
 
 @app.route("/markets", methods=["GET", "POST"])
 @login_required
