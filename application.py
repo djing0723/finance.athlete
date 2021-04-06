@@ -1044,7 +1044,9 @@ def downloadcomps():
 @login_required
 def performance():
     user_id = session["user_id"]
-    rows = db.execute("SELECT date, ROUND(portfolio,2) FROM performance WHERE user_id = :user_id ORDER BY date DESC", user_id = user_id)
+    rows = db.execute("SELECT date, portfolio FROM performance WHERE user_id = :user_id ORDER BY date DESC", user_id = user_id)
+    for i in range(0, len(rows)):
+        rows[i]["portfolio"] = round(rows[i]["portfolio"],2)
     return render_template("performance.html", rows = rows)
 
 def errorhandler(e):
