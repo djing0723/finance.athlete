@@ -573,7 +573,7 @@ def tradelog():
     user_id = session["user_id"]
     if request.method == "GET":
         rows = db.execute("SELECT * FROM positions WHERE user_id = :id ORDER BY date DESC", id = session["user_id"])
-        return render_template("tradelog.html", rows = reversed(rows))
+        return render_template("tradelog.html", rows = rows)
         return apology("TODO")
 
     #if the method is post, we must calculate how the new trade will impact our positions.
