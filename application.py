@@ -1040,6 +1040,8 @@ def downloadcomps():
                      as_attachment=True)
         return render_template("comps.html", comps = comps, parent_ticker = parent_ticker)
 
+@app.route("/performance", methods=["GET", "POST"])
+@login_required
 def performance():
     user_id = session["user_id"]
     rows = db.execute("SELECT date, portfolio FROM performance WHERE user_id = :user_id", user_id = user_id)
