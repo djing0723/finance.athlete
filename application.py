@@ -1040,6 +1040,11 @@ def downloadcomps():
                      as_attachment=True)
         return render_template("comps.html", comps = comps, parent_ticker = parent_ticker)
 
+def performance():
+    user_id = session["user_id"]
+    rows = db.execute("SELECT date, portfolio FROM performance WHERE user_id = :user_id", user_id = user_id)
+    return render_template("performance.html", rows = rows)
+
 def errorhandler(e):
     """Handle error"""
     if not isinstance(e, HTTPException):

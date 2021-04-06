@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Transaction History
+{% endblock %}
+
+{% block main %}
+
+<script>
+var myVar;
+
+function myFunction() {
+  myVar = setTimeout(showPage, 50);
+}
+
+function showPage() {
+  document.getElementById("loader").style.display = "none";
+  document.getElementById("indexDiv").style.display = "block";
+}
+</script>
+
+<table class = "tableclass" style = "margin-top: 50px;">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Date</th>
+            <th>Portfolio Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        {%for row in rows %}
+        <tr>
+            <td>{{row.date}}</td>
+            <td>{{row.portfolio}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+</body>
+
+
+{% endblock %}
+
