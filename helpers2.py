@@ -146,6 +146,8 @@ def financials_update(ticker):
     #if (ct_fh_financials1["netProfitMarginTTM"] is not None):
     financials['netmargin'] = ct_fh_financials1["netProfitMarginTTM"]
 
+    financials['grossmargin'] = ct_fh_financials1["grossMarginTTM"]
+
     #financials["beta"] = 0
    # if (ct_fh_financials1["beta"] is not None):
     financials['beta'] = ct_fh_financials1["beta"]

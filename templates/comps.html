@@ -72,6 +72,7 @@ function showPage() {
             <th>Rev Growth (3y)</th>
             <th>Rev Growth (TTM)</th>
             <th>EPS Growth (3y)</th>
+            <th>Gross Margin TTM</th>
             <th>Operating Margin TTM</th>
             <th>Net Margin TTM</th>
             <th>ROE TTM</th>
@@ -114,6 +115,10 @@ function showPage() {
                 {% endif %}</td>
             <td>{% if comp.epsgrowththree is not none %}
                 {{comp.epsgrowththree|round(1, 'common')}}%
+                {% else %}
+                {% endif %}</td>
+            <td>{% if comp.grossmarginis not none %}
+                {{comp.grossmarginis|round(1, 'common')}}%
                 {% else %}
                 {% endif %}</td>
             <td>{% if comp.operatingmarginttm is not none %}
