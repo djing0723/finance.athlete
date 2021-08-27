@@ -1,0 +1,178 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Transaction History
+{% endblock %}
+
+{% block main %}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function()
+    {
+        let x = document.querySelector("#showForm");
+        let button = document.querySelector("#showformbutton");
+        console.log("You made it here 1");
+        button.addEventListener("click", function() {
+            if (x.style.display === "block")
+            {
+                x.style.display = "none";
+            }
+            else {
+                x.style.display = "block";
+            }
+        });
+    });
+</script>
+
+<script>
+var myVar;
+
+function myFunction() {
+  myVar = setTimeout(showPage, 50);
+}
+
+function showPage() {
+  document.getElementById("loader").style.display = "none";
+  document.getElementById("indexDiv").style.display = "block";
+}
+</script>
+<body>
+<body onload = "myFunction()">
+  <div id = "loader"></div>
+<div id = "indexDiv" class ="animate-bottom" style = "display:none;">
+<br>
+
+<h style = "margin-top: 40px; font-size: 50px; border: none; font-weight: bold; color: white;">Comps</h>
+
+<div>
+      <h1>Search for a stock's comps</h1>
+</div>
+    <form action="/comps" method="post">
+        <div class="form-group">
+            <input name = "comp_ticker" placeholder = "Ticker" type = "text">
+        </div>
+      <input type = "submit" value = "Submit" style = "margin-bottom: 20px;">
+    </form>
+
+<form action = "/comps" method = "post">
+    <input type = "hidden" value = {{parent_ticker}} name = "reset">
+    <input type = "hidden" value = {{parent_ticker}} name = "comp_ticker">
+    <button type = "submit" class = "stock-input-button">Reset Comps<button>
+</form>
+
+<form action = "/downloadcomps" method = "post">
+    <input type = "hidden" value = {{parent_ticker}} name = "parent_ticker">
+    <button type = "submit" class = "stock-input-button">Download as <img src = "https://i.pinimg.com/474x/b4/47/ff/b447ff91c4591008383512eec64d1d96.jpg" style = "height: 25px; widhth: 25px;"> </button>
+</form>
+
+
+
+<table class = "compstableclass" class = "watchlisttable" style = "margin-top: 20px; width: 100%;">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Ticker</th>
+            <th>Market Cap</th>
+            <th>Enterprise Value</th>
+            <th>EV/Sales</th>
+            <th>EV/EBITDA</th>
+            <th>PE Ratio</th>
+            <th>Rev Growth (3y)</th>
+            <th>Rev Growth (TTM)</th>
+            <th>EPS Growth (3y)</th>
+            <th>Operating Margin TTM</th>
+            <th>Net Margin TTM</th>
+            <th>ROE TTM</th>
+            <th>ROIC TTM</th>
+            <th>Debt to Equity</th>
+            <th>Beta</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% if comps is not none %}
+        {%for comp in comps%}
+        <tr>
+            <td>
+                <form action = "/delstockcomps" method = "POST">
+                    <button type = "submit" name = "stock" value = {{comp.ticker}} class="stock-input-button">Delete</button>
+                    <input type = "hidden" name = "parent_ticker" value = {{parent_ticker}}>
+                </form>
+            </td>
+
+            <td>
+                <form action = "/stock" method = "POST">
+                    <button type = "submit" name = "stock-index" value = {{comp.ticker}} class = "stock-input-button">{{comp.ticker}}</button>
+                </form>
+            </td>
+            <td>{{comp.marketcap|round(1, 'common')}}</td>
+            <td>{{comp.ev|round(1, 'common')}}</td>
+            <td>{{comp.evsales|round(1, 'common')}}</td>
+            <td>{{comp.evebitda|round(1, 'common')}}</td>
+            <td>{% if comp.peratio is not none %}
+                {{comp.peratio|round(1, 'common')}}
+                {% else %}
+                {% endif %}</td>            <td>{% if comp.revgrowththree is not none %}
+                {{comp.revgrowththree|round(1, 'common')}}%
+                {% else %}
+                {% endif %}</td>
+            <td>{% if comp.revgrowthttm is not none %}
+                {{comp.revgrowthttm|round(1, 'common')}}%
+                {% else %}
+                {% endif %}</td>
+            <td>{% if comp.epsgrowththree is not none %}
+                {{comp.epsgrowththree|round(1, 'common')}}%
+                {% else %}
+                {% endif %}</td>
+            <td>{% if comp.operatingmarginttm is not none %}
+                {{comp.operatingmarginttm|round(1, 'common')}}%
+                {% else %}
+                {% endif %}</td>
+            <td>{% if comp.netmargin is not none %}
+                {{comp.netmargin|round(1, 'common')}}%
+                {% else %}
+                {% endif %}</td>
+            <td>{% if comp.roettm is not none %}
+                {{comp.roettm|round(1, 'common')}}%
+                {% else %}
+                {% endif %}</td>
+            <td>{% if comp.roi is not none %}
+                {{comp.roi|round(1, 'common')}}%
+                {% else %}
+                {% endif %}</td>
+            <td>{% if comp.debtequity is not none %}
+                {{comp.debtequity|round(1, 'common')}}%
+                {% else %}
+                {% endif %}</td>
+            <td>{% if comp.beta is not none %}
+                {{comp.beta|round(1, 'common')}}
+                {% else %}
+                {% endif %}</td>
+        </tr>
+        {% endfor %}
+
+        <tr>
+            <td>
+                <button id = "showformbutton" style = "background-color: transparent; border: none; color: white;">Add Stock</button>
+                <div id = "showForm" style = "display: none; margin-top: 20px;">
+                    <form action="/addstockcomps" method="post">
+                        <input name = "stock" placeholder = "Add Stock" type = "text">
+                        <input type = "hidden" value = {{parent_ticker}} name = "parent_ticker">
+                        <input type = "submit" value = "Add Stock">
+                    </form>
+                </div>
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
+        {% else %}
+        {% endif %}
+    </tbody>
+</table>
+
+
+</div>
+</body>
+</body>
+{% endblock %}
+

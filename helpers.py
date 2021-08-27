@@ -8,22 +8,24 @@ from functools import wraps
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 import pytz
+import finnhub
+
 #import psycopg2
 
 #db = SQL("sqlite:///finance.db")
 #db = SQL(os.environ.get("postgres://jfbpknqvvinlsw:a0b3987fc025df9455b8ce55e807c2f572bec567efae497c3bb03525f3017c7b@ec2-54-146-118-15.compute-1.amazonaws.com:5432/d4kvpncu0qvihd") or "sqlite:///finance.db")
-db = SQL("postgres://jfbpknqvvinlsw:a0b3987fc025df9455b8ce55e807c2f572bec567efae497c3bb03525f3017c7b@ec2-54-146-118-15.compute-1.amazonaws.com:5432/d4kvpncu0qvihd")
+db = SQL("postgresql://jfbpknqvvinlsw:a0b3987fc025df9455b8ce55e807c2f572bec567efae497c3bb03525f3017c7b@ec2-54-146-118-15.compute-1.amazonaws.com:5432/d4kvpncu0qvihd")
 
 
 api_key_iex = "pk_59fbe731d8a4431396e520b9e2e2ed87"
 api_key_finnhub1 = "bv77j6f48v6qefljqrr0"
-api_key_finnhub2 = "bv77j6f48v6qefljqrr0"
+api_key_finnhub2 = "bvbb94v48v6q7r401fn0"
+
+finnhub_client = finnhub.Client(api_key="bv77j6f48v6qefljqrr0")
 
 #api_key_finnhub2 = "bvbb94v48v6q7r401fn0"
 
-
-
-def timecheck(ticker):
+def timecheck(quote):
 
     #timecheck checks to see if we've updated in that time of day because we only update three times a week
     current_date = datetime.now(pytz.timezone('US/Eastern')).date()
@@ -42,10 +44,12 @@ def timecheck(ticker):
         time_to_display = str(current_time.hour) + ":" + current_minute
 
     #get the latest quote for that ticker
-    quote =  db.execute("SELECT date, time, ticker, price, change FROM prices WHERE ticker = :ticker ORDER BY date, time DESC", ticker = ticker)[0]
+    #quote =  db.execute("SELECT date, time, ticker, price, change FROM prices WHERE ticker = :ticker ORDER BY date, time DESC", ticker = ticker)[0]
 
+    ticker = quote["ticker"]
+    
     #if there is no quote, we need to update it in our prices database
-    if len(quote) == 0:
+    if quote["price"] is None:
         ticker_quote = lookup(ticker)
         price = ticker_quote["price"]
         change = ticker_quote["change"]
@@ -71,7 +75,6 @@ def apology(message, code=400):
     def escape(s):
         """
         Escape special characters.
-
         https://github.com/jacebrowning/memegen#special-characters
         """
         for old, new in [("-", "--"), (" ", "-"), ("_", "__"), ("?", "~q"),
@@ -83,7 +86,6 @@ def apology(message, code=400):
 def login_required(f):
     """
     Decorate routes to require login.
-
     https://flask.palletsprojects.com/en/1.1.x/patterns/viewdecorators/
     """
     @wraps(f)
@@ -95,30 +97,44 @@ def login_required(f):
 
 
 def lookup(symbol):
-    """Look up quote for symbol."""
+    #Look up quote for symbol.
     # Contact API
+    symbol = symbol.lower()
     try:
-        url = f"https://cloud-sse.iexapis.com/stable/stock/{urllib.parse.quote_plus(symbol)}/quote?token={api_key_iex}"
+        url = f"https://cloud.iexapis.com/stable/stock/{urllib.parse.quote_plus(symbol)}/quote?token={api_key_iex}"
         response = requests.get(url)
         response.raise_for_status()
     except requests.RequestException:
         return None
 
     # Parse response
-    try:
-        quote = response.json()
-        return {
-            "name": quote["companyName"],
-            "price": float(quote["latestPrice"]),
-            "symbol": quote["symbol"],
-            "change": quote["changePercent"]
-        }
+    """try:
     except (KeyError, TypeError, ValueError):
-        return None
+        return none"""
+    quote = response.json()
+    return {
+        "name": quote["companyName"],
+        "price": float(quote["latestPrice"]),
+        "symbol": quote["symbol"],
+        "change": quote["changePercent"]
+    }
+
+"""
+def lookup(symbol): 
+    quote = finnhub_client.quote(symbol)
+    if quote is None: 
+        return none
+
+    return {
+        "name": symbol,
+        "price": float(quote["c"]),
+        "symbol": symbol, 
+        "change": (float(quote["c"])-float(quote["pc"]))/float(quote["pc"])
+    }
+    """
+
 
 def news_lookup(symbol):
-    """Look up quote for symbol."""
-
     today = date.today()
     today_sixmonths = today + relativedelta(months=- 6)
     d1 = today.strftime("%Y-%m-%d")

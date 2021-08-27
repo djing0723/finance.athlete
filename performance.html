@@ -1,0 +1,106 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Transaction History
+{% endblock %}
+
+{% block main %}
+
+<script>
+var myVar;
+
+function myFunction() {
+  myVar = setTimeout(showPage, 50);
+}
+
+function showPage() {
+  document.getElementById("loader").style.display = "none";
+  document.getElementById("indexDiv").style.display = "block";
+}
+</script>
+
+<body onload = "myFunction()" style = "width: 100%;">
+  <div id = "loader"></div>
+<div id = "indexDiv" class ="animate-bottom" style = "display:none;">
+
+  {% if rows3|length >=1 %}
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      result = {{rows3|tojson}};
+      console.log(result)
+
+      function drawChart() {
+      var dataVis = google.visualization.arrayToDataTable(result);
+      
+        var options = {
+          title: 'Portfolio Performance',
+          titleTextSTyle: {
+            color: 'red',
+          },
+          curveType: 'function',
+          legend: 'none',
+          backgroundColor: 'transparent',
+          legendTextStyle: {color: 'white'},
+          textcolor: 'white',
+          colors: ['#1cbec7'],
+          vAxis: {
+            baselineColor: 'white',
+            gridlineColor: 'none', 
+          },
+          hAxis: {
+            title: "Date",
+            titleTextStyle: {
+              color: 'white',
+            },
+            baselineColor: 'white',
+            gridlineColor: 'none', 
+            showTextEvery: 1,
+            textcolor: 'white',
+            slantedText: true, 
+            slantedTextAngle: 90,
+          },
+          chartArea: {left: 0, top: 0, width: "100%"},
+          width: 800,
+          height: 400,
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('linechart'));
+
+        chart.draw(dataVis, options);
+      };
+    </script>
+  </head>
+  {% else %}
+  {% endif %}
+  
+  <div class="card card-info" style = "text-align: center; margin-top: 50px;">
+    <h2 style = "margin-top: 30px;">Portfolio Performance</h2>
+    <div id="linechart" class = "index_piechart"></div>
+  </div>
+
+<table class = "tableclass" style = "margin-top: 50px;">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Portfolio Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        {%for row in rows %}
+        <tr>
+            <td>{{row.date}}</td>
+            <td>{{row.portfolio}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+</body>
+
+
+{% endblock %}
+
